@@ -1,3 +1,8 @@
+# 0.0.4
+
+Casting symbolsIds to strings and assigning missing ctidTraderAccountId to
+ProtoOASymbolByIdReq request payload
+
 # 0.0.3
 
 Now the getSymbolsList will return the full symbols properties lists.

@@ -56,7 +56,7 @@ export class SymbolsManager extends BaseManager {
         this.logCallAttemptSuccess(this.getSymbolsList);
 
         const fullSymbols = await this.getSymbolsDetails(
-            result.symbol.map(({ symbolId }) => symbolId),
+            result.symbol.map(({ symbolId }) => +symbolId),
         );
 
         return fullSymbols.symbol.map((symbol) => ({
@@ -72,6 +72,7 @@ export class SymbolsManager extends BaseManager {
 
         const payload: ProtoOASymbolByIdReq = {
             symbolId: symbolsIds,
+            ctidTraderAccountId: this.credentials.ctidTraderAccountId,
         };
 
         let result: ProtoOASymbolByIdRes;
