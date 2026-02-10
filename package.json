@@ -1,8 +1,8 @@
 {
     "name": "ctrader-x",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "A typescript cTrader OpenAPI implementation",
-    "main": "dist/index.js",
+    "main": "dist/src/index.js",
     "scripts": {
         "build": "tsc",
         "build:watch": "tsc --watch",

@@ -17,4 +17,14 @@ export abstract class BaseManager {
             `Call attempt to ${method.name} failed: ${cTraderXError.getMessageError(error)}`,
         );
     }
+
+    protected handleCTraderCallError(
+        error: Error,
+        method: Function,
+        rethrowError: cTraderXError,
+    ): cTraderXError {
+        const message = cTraderXError.getMessageError(error);
+        this.logCallAttemptFailure(method, message);
+        return rethrowError;
+    }
 }

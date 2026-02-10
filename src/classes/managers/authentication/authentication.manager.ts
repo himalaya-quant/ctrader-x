@@ -1,12 +1,12 @@
 import { CTraderConnection } from '@reiryoku/ctrader-layer';
+
 import { ILogger } from '../../logger';
-import { ApplicationAuthenticationError } from './errors/application-auth.error';
-import { cTraderXError } from '../../models/ctrader-x-error.model';
+import { BaseManager } from '../models/base.manager';
+import { ICredentials } from '../models/credentials.model';
 import { UserAuthenticationError } from './errors/user-auth.error';
+import { ApplicationAuthenticationError } from './errors/application-auth.error';
 import { ProtoOAAccountAuthReq } from '../../../models/proto/messages/authentication/ProtoOAAccountAuthReq';
 import { ProtoOAApplicationAuthReq } from '../../../models/proto/messages/authentication/ProtoOAApplicationAuthReq';
-import { ICredentials } from '../models/credentials.model';
-import { BaseManager } from '../models/base.manager';
 
 export class AuthenticationManager extends BaseManager {
     constructor(
@@ -32,9 +32,11 @@ export class AuthenticationManager extends BaseManager {
 
             this.logCallAttemptSuccess(this.authenticateApp);
         } catch (e) {
-            const message = cTraderXError.getMessageError(e);
-            this.logCallAttemptFailure(this.authenticateApp, message);
-            throw new ApplicationAuthenticationError(message);
+            throw this.handleCTraderCallError(
+                e,
+                this.authenticateApp,
+                new ApplicationAuthenticationError(e),
+            );
         }
     }
 
@@ -53,9 +55,11 @@ export class AuthenticationManager extends BaseManager {
 
             this.logCallAttemptSuccess(this.authenticateUser);
         } catch (e) {
-            const message = cTraderXError.getMessageError(e);
-            this.logCallAttemptFailure(this.authenticateUser, message);
-            throw new UserAuthenticationError(message);
+            throw this.handleCTraderCallError(
+                e,
+                this.authenticateUser,
+                new UserAuthenticationError(e),
+            );
         }
     }
 }
