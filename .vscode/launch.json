@@ -1,0 +1,58 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch example file",
+            "runtimeArgs": ["-r", "ts-node/register"],
+            "args": [
+                "${workspaceFolder}/src/examples/authentication.example.ts"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Current Test File",
+            "autoAttachChildProcesses": true,
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+            "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+            "args": ["run", "${relativeFile}"],
+            "smartStep": true,
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug All Tests",
+            "autoAttachChildProcesses": true,
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+            "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+            "args": ["run"],
+            "smartStep": true,
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Specific Test",
+            "autoAttachChildProcesses": true,
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+            "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+            "args": ["run", "${input:testFile}"],
+            "smartStep": true,
+            "console": "integratedTerminal"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testFile",
+            "type": "promptString",
+            "description": "Test file path (e.g., tests/core/client.test.ts)",
+            "default": "tests/"
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+    "name": "ctrader-x",
+    "version": "0.0.1",
+    "description": "A typescript cTrader OpenAPI implementation",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "build:watch": "tsc --watch",
+        "start": "tsc && node dist/_main.js",
+        "start:example": "tsc && node dist/examples/authentication.example.js",
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:run": "vitest run",
+        "test:cov": "vitest run --coverage"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/himalaya-quant/ctrader-x.git"
+    },
+    "dependencies": {
+        "@reiryoku/ctrader-layer": "^2.2.0",
+        "dotenv": "^17.2.4",
+        "protobufjs": "^7.4.0"
+    },
+    "devDependencies": {
+        "@types/node": "^25.2.2",
+        "@vitest/coverage-v8": "^4.0.18",
+        "@vitest/ui": "^4.0.18",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.18"
+    },
+    "keywords": [
+        "ctrader",
+        "spotware",
+        "himalaya-quant"
+    ],
+    "author": "Caius Citiriga",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/himalaya-quant/ctrader-x/issues"
+    },
+    "homepage": "https://github.com/himalaya-quant/ctrader-x#readme"
+}
