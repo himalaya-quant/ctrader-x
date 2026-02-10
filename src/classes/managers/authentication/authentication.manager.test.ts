@@ -1,10 +1,10 @@
 // tests/managers/authentication.manager.test.ts
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { CTraderConnection } from '@reiryoku/ctrader-layer';
-import { Config } from '../../config/config';
-import { ApplicationAuthenticationError } from '../../errors/application-auth.error';
-import { UserAuthenticationError } from '../../errors/user-auth.error';
-import { Logger } from '../logger';
+import { Config } from '../../../config/config';
+import { ApplicationAuthenticationError } from './errors/application-auth.error';
+import { UserAuthenticationError } from './errors/user-auth.error';
+import { Logger } from '../../logger';
 import { AuthenticationManager } from './authentication.manager';
 
 describe('AuthenticationManager - Integration Tests', () => {

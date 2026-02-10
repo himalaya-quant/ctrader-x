@@ -1,4 +1,4 @@
-import { cTraderXError } from './ctrader-x.error';
+import { cTraderXError } from '../../../models/ctrader-x-error.model';
 
 export class UserAuthenticationError extends cTraderXError {
     constructor(message: string) {

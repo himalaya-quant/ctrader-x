@@ -7,8 +7,8 @@
         "build": "tsc",
         "build:watch": "tsc --watch",
         "start": "tsc && node dist/_main.js",
-        "start:example": "tsc && node dist/examples/authentication.example.js",
-        "test": "vitest",
+        "start:example": "tsc && node dist/src/examples/symbols.example.js",
+        "test": "rm -rf dist && vitest",
         "test:ui": "vitest --ui",
         "test:run": "vitest run",
         "test:cov": "vitest run --coverage"

@@ -37,9 +37,10 @@ const client = new cTraderX({
     // clientSecret?: string;
     // accessToken?: string;
     // ctidTraderAccountId?: number;
-    // disableAutoconnect?: boolean;
     // logger?: ILogger;
 });
+
+client.connect().then(() => console.log('connected!'));
 ```
 
 # Authentication

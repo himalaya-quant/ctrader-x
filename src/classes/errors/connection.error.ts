@@ -1,7 +1,7 @@
-import { cTraderXError } from './ctrader-x.error';
+import { cTraderXError } from '../models/ctrader-x-error.model';
 
 export class ConnectionError extends cTraderXError {
-    constructor(message: string){
+    constructor(message: string) {
         super(`Connection error: ${message}`);
     }
 }

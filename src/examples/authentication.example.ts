@@ -1,9 +1,7 @@
 import { cTraderX } from '../classes/client';
 
-const client = new cTraderX({
-    disableAutoconnect: true,
-});
-
-client.connect().then(() => {
+const client = new cTraderX();
+(async () => {
+    await client.connect();
     console.log(`Connected!`);
-});
+})();

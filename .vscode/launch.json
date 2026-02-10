@@ -38,6 +38,16 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Debug Current TS File",
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+            "program": "${file}",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Debug Specific Test",
             "autoAttachChildProcesses": true,
             "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
