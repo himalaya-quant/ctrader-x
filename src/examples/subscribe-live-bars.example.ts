@@ -10,7 +10,8 @@ import { ProtoOATrendbarPeriod } from '../models/proto/models/ProtoOATrendbarPer
     client.symbols
         .subscribeLiveTrendBars({
             period: ProtoOATrendbarPeriod.M1,
-            symbolId: 1,
+            // symbolId: 1, // EURUSD
+            symbolId: 10026, // BTCUSD
         })
         .pipe(tap((event) => console.log(event)))
         .subscribe();

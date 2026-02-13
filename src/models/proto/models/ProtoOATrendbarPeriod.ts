@@ -12,5 +12,5 @@ export enum ProtoOATrendbarPeriod {
     H12 = 11,
     D1 = 12,
     W1 = 13,
-    MN1 = 1,
+    MN1 = 14,
 }

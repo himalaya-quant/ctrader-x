@@ -17,6 +17,7 @@ import { SubscribeLiveTrendBarsInternalError } from './errors/subscribe-live-tre
 import { SymbolsManager } from './symbols.manager';
 import { ProtoOAPayloadType } from '../../../models/proto/payload-types/payload-types.enum';
 import { firstValueFrom, take } from 'rxjs';
+import { OHLCVPositions } from '../../../models/common/ohlcv';
 
 describe('SymbolsManager - Unit Tests', () => {
     let symbolsManager: SymbolsManager;
@@ -362,9 +363,7 @@ describe('SymbolsManager - Unit Tests', () => {
             const result = await symbolsManager.getTrendBars(opts);
 
             // Verify timestamps are converted (multiplied by 60000)
-            expect(result.trendbar[0].utcTimestampInMinutes).toBe(
-                29350000 * 60000,
-            );
+            expect(result[0][OHLCVPositions.TIME]).toBe(29350000 * 60000);
             expect(mockConnection.sendCommand).toHaveBeenCalledWith(
                 ProtoOAGetTrendbarsReq.name,
                 {
@@ -417,9 +416,9 @@ describe('SymbolsManager - Unit Tests', () => {
 
             const result = await symbolsManager.getTrendBars(opts);
 
-            expect(result.trendbar[0].utcTimestampInMinutes).toBe(1000 * 60000);
-            expect(result.trendbar[1].utcTimestampInMinutes).toBe(2000 * 60000);
-            expect(result.trendbar[2].utcTimestampInMinutes).toBe(3000 * 60000);
+            expect(result[0][OHLCVPositions.TIME]).toBe(1000 * 60000);
+            expect(result[1][OHLCVPositions.TIME]).toBe(2000 * 60000);
+            expect(result[2][OHLCVPositions.TIME]).toBe(3000 * 60000);
         });
 
         it('should throw GetTrendBarsError on failure', async () => {
@@ -790,9 +789,9 @@ describe('SymbolsManager - Unit Tests', () => {
 
             const result = await eventPromise;
 
-            expect(result.trendbar).toHaveLength(2);
-            expect(result.trendbar[0].period).toBe('M1');
-            expect(result.trendbar[1].period).toBe('M5');
+            expect(result).toHaveLength(2);
+            expect(result[0].period).toBe('M1');
+            expect(result[1].period).toBe('M5');
         });
 
         it('should set subscribeToSpotTimestamp to true when subscribing to spots', async () => {

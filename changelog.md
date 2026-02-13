@@ -1,6 +1,8 @@
 # 0.0.6:WIP
 
-Fix heartbeat
+- Fix heartbeat
+- Changed return type of getTrendBars to OHLCV for convenience of consumer's use
+- Changed return type of subscribeLiveTrendBars to OHLCV, symbolId and period for convenience of consumer's use
 
 # 0.0.5
 

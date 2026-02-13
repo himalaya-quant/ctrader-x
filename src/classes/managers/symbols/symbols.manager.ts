@@ -21,9 +21,13 @@ import { SubscribeSpotEventsError } from './errors/subscribe-spot-events.error';
 import { ProtoOASubscribeLiveTrendbarRes } from '../../../models/proto/messages/symbols/ProtoOASubscribeLiveTrendbarRes';
 import { SubscribeLiveTrendBarsInternalError } from './errors/subscribe-live-trend-bars.error';
 import { ProtoOASpotEvent } from '../../../models/proto/models/ProtoOASpotEvent';
-import { ProtoOATrendbar } from '../../../models/proto/models/ProtoOATrendbar';
 import { CTraderLayerEvent } from '@reiryoku/ctrader-layer/build/src/core/events/CTraderLayerEvent';
 import { ProtoOAPayloadType } from '../../../models/proto/payload-types/payload-types.enum';
+import { TrendBarUtils } from '../../../utils/trendbar.utils';
+import { OHLCV, OHLCVPositions } from '../../../models/common/ohlcv';
+import { Price } from '../../../utils/price.utils';
+import { TimeFrame } from '../../../utils/timeframe.utils';
+import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';
 
 export interface ISubscribeBarsOptions extends ProtoOASubscribeLiveTrendbarReq {}
 
@@ -33,14 +37,12 @@ export interface IGetSymbolsListOptions {
 
 export type GetSymbolsListResult = (ProtoOASymbol & ProtoOALightSymbol)[];
 
-export type SubscribeLiveTrendBarsEvent = {
-    bid?: number;
-    ask?: number;
+export interface SubscribeLiveTrendBarsEvent {
     symbolId: number;
-    timestamp?: number;
-    sessionClose?: number;
-    trendbar: ProtoOATrendbar[];
-};
+    ohlcv: OHLCV;
+    lastBarTime: number;
+    period: ProtoOATrendbarPeriod;
+}
 
 export class SymbolsManager extends BaseManager {
     constructor(
@@ -117,7 +119,7 @@ export class SymbolsManager extends BaseManager {
 
     async getTrendBars(
         opts: Omit<ProtoOAGetTrendbarsReq, 'ctidTraderAccountId'>,
-    ): Promise<ProtoOAGetTrendbarsRes> {
+    ): Promise<OHLCV[]> {
         this.logCallAttempt(this.getTrendBars);
         let result: ProtoOAGetTrendbarsRes;
         try {
@@ -139,11 +141,9 @@ export class SymbolsManager extends BaseManager {
 
         this.logCallAttemptSuccess(this.getTrendBars);
 
-        for (let i = 0; i < result.trendbar.length; i++) {
-            result.trendbar[i].utcTimestampInMinutes =
-                result.trendbar[i].utcTimestampInMinutes! * 60000;
-        }
-        return result;
+        const symbolInfo = await this.getSymbolsDetails([opts.symbolId]);
+        const precision = +symbolInfo.symbol[0].digits;
+        return TrendBarUtils.mapTrendbarsToOHLCV(result.trendbar, precision);
     }
 
     subscribeLiveTrendBars(opts: ISubscribeBarsOptions) {
@@ -155,19 +155,93 @@ export class SymbolsManager extends BaseManager {
         ).pipe(
             switchMap(() => this.subscribeLiveTrendBarsInternal(opts)),
             switchMap(() => {
-                const subject = new Subject<SubscribeLiveTrendBarsEvent>();
+                const subject = new Subject<
+                    Omit<SubscribeLiveTrendBarsEvent, 'lastBarTime'>
+                >();
+                let lastBar: OHLCV | null = null;
+                let lastBarTime: number | null = null;
                 this.connection.on(ProtoOASpotEvent.name, (event) => {
                     if (this.isSubscribeLiveTrendBarsEvent(event, opts)) {
-                        subject.next(
+                        const update =
                             this.spotEventDescriptorToSubscribeLiveBarsEvent(
                                 event,
-                            ),
-                        );
+                                opts.period,
+                                lastBar,
+                                lastBarTime,
+                            );
+                        if (!update) return;
+                        lastBar = update.ohlcv;
+                        lastBarTime = update.lastBarTime;
+                        subject.next({
+                            ohlcv: update.ohlcv,
+                            period: update.period,
+                            symbolId: update.symbolId,
+                        });
                     }
                 });
                 return subject;
             }),
         );
+    }
+
+    private spotEventDescriptorToSubscribeLiveBarsEvent(
+        event: CTraderLayerEvent,
+        period: ProtoOATrendbarPeriod,
+        lastBar: OHLCV | null,
+        lastBarTime: number | null,
+    ): SubscribeLiveTrendBarsEvent | null {
+        let lastBarClone = structuredClone(lastBar);
+        let lastBarTimeClone = structuredClone(lastBarTime);
+
+        const price = Price.getPrice(
+            +event.descriptor.bid,
+            +event.descriptor.ask,
+        );
+        if (price === null) return null;
+
+        // Calculate at which bar time this tick corresponds
+        const barTimestamp = TimeFrame.roundToTimeFrame(
+            event.descriptor.timestamp,
+            ProtoOATrendbarPeriod[period],
+        );
+
+        // If bar timestamp has changed, the previous bar has closed.
+        if (lastBarTimeClone && barTimestamp !== lastBarTimeClone) {
+            lastBarClone = null; // Reset
+            this.logger.debug(
+                `🆕 New Bar! ${new Date(barTimestamp).toLocaleString()}`,
+            );
+        }
+
+        // Initialize new bar if necessary
+        if (!lastBarClone) {
+            lastBarClone = [barTimestamp, price, price, price, price, 0];
+            lastBarTimeClone = barTimestamp;
+        }
+
+        // Update current bar
+        lastBarClone[OHLCVPositions.HIGH] = Math.max(
+            lastBarClone[OHLCVPositions.HIGH],
+            price,
+        );
+        lastBarClone[OHLCVPositions.LOW] = Math.min(
+            lastBarClone[OHLCVPositions.LOW],
+            price,
+        );
+        lastBarClone[OHLCVPositions.CLOSE] = price;
+
+        // If there's a trendbar, update the volume, since we cannot calculate it
+        if (event.descriptor.trendbar && event.descriptor.trendbar.length > 0) {
+            lastBarClone[OHLCVPositions.VOLUME] =
+                +event.descriptor.trendbar[0].volume;
+        }
+
+        return {
+            period,
+            ohlcv: lastBarClone,
+            symbolId: event.descriptor.symbolId,
+            lastBarTime: lastBarClone[OHLCVPositions.TIME],
+        };
     }
 
     private isSubscribeLiveTrendBarsEvent(
@@ -181,33 +255,6 @@ export class SymbolsManager extends BaseManager {
         const isSpotEvent =
             event.type === ProtoOAPayloadType.PROTO_OA_SPOT_EVENT;
         return isSpotEvent && sameSymbolId && sameAccountId;
-    }
-
-    private spotEventDescriptorToSubscribeLiveBarsEvent(
-        event: CTraderLayerEvent,
-    ): SubscribeLiveTrendBarsEvent {
-        return {
-            symbolId: +event.descriptor.symbolId,
-            timestamp: event.descriptor.timestamp
-                ? +event.descriptor.timestamp
-                : undefined,
-            sessionClose: event.descriptor.sessionClose
-                ? +event.descriptor.sessionClose
-                : undefined,
-            ask: event.descriptor.ask ? +event.descriptor.ask : undefined,
-            bid: event.descriptor.bid ? +event.descriptor.bid : undefined,
-            trendbar: (event.descriptor.trendbar as ProtoOATrendbar[]).map(
-                (t) => ({
-                    period: t.period,
-                    volume: +t.volume,
-                    low: t.low ? +t.low : undefined,
-                    utcTimestampInMinutes: t.utcTimestampInMinutes,
-                    deltaOpen: t.deltaOpen ? +t.deltaOpen : undefined,
-                    deltaHigh: t.deltaHigh ? +t.deltaHigh : undefined,
-                    deltaClose: t.deltaClose ? +t.deltaClose : undefined,
-                }),
-            ),
-        };
     }
 
     private async subscribeSpotEvents(opts: ProtoOASubscribeSpotsReq) {

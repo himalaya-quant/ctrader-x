@@ -15,7 +15,5 @@ import { ProtoOATrendbarPeriod } from '../models/proto/models/ProtoOATrendbarPer
     });
     client.disconnect();
 
-    console.log(
-        `Get trend bars result returned ${trendBars.trendbar.length} bars`,
-    );
+    console.log(`Get trend bars result returned ${trendBars.length} bars`);
 })();
