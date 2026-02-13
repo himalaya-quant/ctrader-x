@@ -1,19 +1,6 @@
 import { cTraderX } from '../classes/client';
 import { ProtoOATrendbarPeriod } from '../models/proto/models/ProtoOATrendbarPeriod';
 
-// Get symbols list
-(async () => {
-    const client = new cTraderX();
-
-    await client.connect();
-    const symbolsList = await client.symbols.getSymbolsList();
-    client.disconnect();
-
-    symbolsList.forEach((symbol) => {
-        console.log(`[${symbol.symbolId}] ${symbol.symbolName}`);
-    });
-})();
-
 // Get bars for symbol
 (async () => {
     const client = new cTraderX();

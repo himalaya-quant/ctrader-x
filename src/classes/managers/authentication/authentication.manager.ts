@@ -10,8 +10,8 @@ import { ProtoOAApplicationAuthReq } from '../../../models/proto/messages/authen
 
 export class AuthenticationManager extends BaseManager {
     constructor(
-        readonly credentials: ICredentials,
-        private readonly connection: CTraderConnection,
+        protected readonly credentials: ICredentials,
+        protected readonly connection: CTraderConnection,
         protected readonly logger: ILogger,
     ) {
         super();

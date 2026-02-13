@@ -1,13 +1,13 @@
 {
     "name": "ctrader-x",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "A typescript cTrader OpenAPI implementation",
     "main": "dist/src/index.js",
     "scripts": {
         "build": "tsc",
         "build:watch": "tsc --watch",
         "start": "tsc && node dist/_main.js",
-        "start:example": "tsc && node dist/src/examples/symbols.example.js",
+        "start:example": "tsc && node dist/src/examples/subscribe-live-bars.example.js",
         "test": "rm -rf dist && vitest",
         "test:ui": "vitest --ui",
         "test:run": "vitest run",
@@ -20,7 +20,8 @@
     "dependencies": {
         "@reiryoku/ctrader-layer": "^2.2.0",
         "dotenv": "^17.2.4",
-        "protobufjs": "^7.4.0"
+        "protobufjs": "^7.4.0",
+        "rxjs": "^7.8.2"
     },
     "devDependencies": {
         "@types/node": "^25.2.2",

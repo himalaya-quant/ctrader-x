@@ -6,7 +6,6 @@ import { ConnectionError } from './errors/connection.error';
 import { cTraderXError } from './models/ctrader-x-error.model';
 import { IConfiguration } from './models/client-configuration.model';
 import { SymbolsManager } from './managers/symbols/symbols.manager';
-import { Sleep } from '../utils/sleep.utils';
 import { ClientNotConnectedError } from './errors/client-not-connected.error';
 
 export class cTraderX {
@@ -67,12 +66,21 @@ export class cTraderX {
             await this.connection.open();
             await this.authManager.authenticateApp();
             await this.authManager.authenticateUser();
+            this.sendHeartbeat();
             this.isConnected = true;
         } catch (e) {
             const message = cTraderXError.getMessageError(e);
             this.logger.error(`Error opening connection: ${message}`);
             throw new ConnectionError(message);
         }
+    }
+
+    private sendHeartbeat() {
+        if (!this.isConnected) return;
+        this.connection.sendHeartbeat();
+        setTimeout(() => {
+            this.sendHeartbeat();
+        }, 1000 * 9);
     }
 
     private ensureConnectedOrThrow() {

@@ -1,8 +1,12 @@
 import { cTraderXError } from '../../models/ctrader-x-error.model';
 import { ILogger } from '../../logger';
+import { CTraderConnection } from '@reiryoku/ctrader-layer';
+import { ICredentials } from './credentials.model';
 
 export abstract class BaseManager {
     protected readonly logger: ILogger;
+    protected readonly credentials: ICredentials;
+    protected readonly connection: CTraderConnection;
 
     protected logCallAttempt(method: Function) {
         this.logger.debug(`Attempting ${method.name} call`);

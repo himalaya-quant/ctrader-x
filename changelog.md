@@ -1,3 +1,10 @@
+# 0.0.5
+
+Adds subscribeToLiveTrendBars:
+Gives the ability to subscribe to live price data, given a timeframe and a
+symbolId. Returns an RxJs Observable the can be subscribed to and receive
+realtime updates. Still missing unsubscribe feature.
+
 # 0.0.4
 
 Casting symbolsIds to strings and assigning missing ctidTraderAccountId to
