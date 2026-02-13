@@ -66,8 +66,8 @@ export class cTraderX {
             await this.connection.open();
             await this.authManager.authenticateApp();
             await this.authManager.authenticateUser();
-            this.sendHeartbeat();
             this.isConnected = true;
+            this.sendHeartbeat();
         } catch (e) {
             const message = cTraderXError.getMessageError(e);
             this.logger.error(`Error opening connection: ${message}`);

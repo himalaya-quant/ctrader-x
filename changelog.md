@@ -1,3 +1,7 @@
+# 0.0.6:WIP
+
+Fix heartbeat
+
 # 0.0.5
 
 Adds subscribeToLiveTrendBars:
