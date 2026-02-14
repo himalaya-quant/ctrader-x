@@ -7,6 +7,7 @@ import { cTraderXError } from './models/ctrader-x-error.model';
 import { IConfiguration } from './models/client-configuration.model';
 import { SymbolsManager } from './managers/symbols/symbols.manager';
 import { ClientNotConnectedError } from './errors/client-not-connected.error';
+import { SymbolsUpdatesManager } from './managers/symbols/symbols-updates.manager';
 
 export class cTraderX {
     private readonly port = 5035;
@@ -16,6 +17,7 @@ export class cTraderX {
 
     private readonly symbolsManager: SymbolsManager;
     private readonly authManager: AuthenticationManager;
+    private readonly symbolsUpdatesManager: SymbolsUpdatesManager;
 
     private isConnected = false;
 
@@ -49,11 +51,21 @@ export class cTraderX {
             this.connection,
             this.logger,
         );
+        this.symbolsUpdatesManager = new SymbolsUpdatesManager(
+            credentials,
+            this.connection,
+            this.logger,
+        );
     }
 
     get symbols() {
         this.ensureConnectedOrThrow();
         return this.symbolsManager;
+    }
+
+    get symbolsUpdates() {
+        this.ensureConnectedOrThrow();
+        return this.symbolsUpdatesManager;
     }
 
     disconnect() {

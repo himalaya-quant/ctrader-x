@@ -18,6 +18,7 @@ import { SymbolsManager } from './symbols.manager';
 import { ProtoOAPayloadType } from '../../../models/proto/payload-types/payload-types.enum';
 import { firstValueFrom, take } from 'rxjs';
 import { OHLCVPositions } from '../../../models/common/ohlcv';
+import { only } from 'node:test';
 
 describe('SymbolsManager - Unit Tests', () => {
     let symbolsManager: SymbolsManager;
@@ -352,6 +353,15 @@ describe('SymbolsManager - Unit Tests', () => {
             };
 
             mockConnection.sendCommand.mockResolvedValue(mockResponse);
+            const _getSymbolsDetails =
+                symbolsManager.getSymbolsDetails.bind(symbolsManager);
+            symbolsManager.getSymbolsDetails = vi.fn().mockResolvedValue({
+                symbol: [
+                    {
+                        digits: 3,
+                    },
+                ],
+            });
 
             const opts = {
                 symbolId: 1,
@@ -361,6 +371,7 @@ describe('SymbolsManager - Unit Tests', () => {
             };
 
             const result = await symbolsManager.getTrendBars(opts);
+            symbolsManager.getSymbolsDetails = _getSymbolsDetails;
 
             // Verify timestamps are converted (multiplied by 60000)
             expect(result[0][OHLCVPositions.TIME]).toBe(29350000 * 60000);
@@ -406,6 +417,15 @@ describe('SymbolsManager - Unit Tests', () => {
             };
 
             mockConnection.sendCommand.mockResolvedValue(mockResponse);
+            const _getSymbolsDetails =
+                symbolsManager.getSymbolsDetails.bind(symbolsManager);
+            symbolsManager.getSymbolsDetails = vi.fn().mockResolvedValue({
+                symbol: [
+                    {
+                        digits: 3,
+                    },
+                ],
+            });
 
             const opts = {
                 symbolId: 1,
@@ -415,6 +435,7 @@ describe('SymbolsManager - Unit Tests', () => {
             };
 
             const result = await symbolsManager.getTrendBars(opts);
+            symbolsManager.getSymbolsDetails = _getSymbolsDetails;
 
             expect(result[0][OHLCVPositions.TIME]).toBe(1000 * 60000);
             expect(result[1][OHLCVPositions.TIME]).toBe(2000 * 60000);
@@ -438,392 +459,6 @@ describe('SymbolsManager - Unit Tests', () => {
             );
 
             expect(mockLogger.error).toHaveBeenCalled();
-        });
-    });
-
-    describe('subscribeLiveTrendBars', () => {
-        it('should successfully subscribe to live trend bars and emit events', async () => {
-            const mockSubscribeSpotsRes: ProtoOASubscribeSpotsRes = {
-                ctidTraderAccountId: 12345,
-            };
-
-            const mockSubscribeLiveTrendbarRes: ProtoOASubscribeLiveTrendbarRes =
-                {
-                    ctidTraderAccountId: 12345,
-                };
-
-            mockConnection.sendCommand
-                .mockResolvedValueOnce(mockSubscribeSpotsRes)
-                .mockResolvedValueOnce(mockSubscribeLiveTrendbarRes);
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            const observable = symbolsManager.subscribeLiveTrendBars(opts);
-
-            // Simulate event emission
-            const mockEvent = {
-                type: ProtoOAPayloadType.PROTO_OA_SPOT_EVENT,
-                descriptor: {
-                    ctidTraderAccountId: 12345,
-                    symbolId: 1,
-                    timestamp: 1640000000000,
-                    sessionClose: 1640086400000,
-                    ask: 1.1234,
-                    bid: 1.123,
-                    trendbar: [
-                        {
-                            period: 'M1',
-                            volume: 1000000,
-                            low: 1.12,
-                            utcTimestampInMinutes: 27333,
-                            deltaOpen: 50,
-                            deltaHigh: 100,
-                            deltaClose: 75,
-                        },
-                    ],
-                },
-            };
-
-            const eventPromise = firstValueFrom(observable.pipe(take(1)));
-
-            // Wait a bit for the subscription to be set up
-            await new Promise((resolve) => setTimeout(resolve, 10));
-
-            // Get the event handler that was registered
-            const onHandler = mockConnection.on.mock.calls[0][1];
-            onHandler(mockEvent);
-
-            const result = await eventPromise;
-
-            expect(result).toEqual({
-                symbolId: 1,
-                timestamp: 1640000000000,
-                sessionClose: 1640086400000,
-                ask: 1.1234,
-                bid: 1.123,
-                trendbar: [
-                    {
-                        period: 'M1',
-                        volume: 1000000,
-                        low: 1.12,
-                        utcTimestampInMinutes: 27333,
-                        deltaOpen: 50,
-                        deltaHigh: 100,
-                        deltaClose: 75,
-                    },
-                ],
-            });
-
-            expect(mockConnection.sendCommand).toHaveBeenCalledTimes(2);
-            expect(mockConnection.sendCommand).toHaveBeenNthCalledWith(
-                1,
-                ProtoOASubscribeSpotsReq.name,
-                {
-                    symbolId: 1,
-                    ctidTraderAccountId: 12345,
-                    subscribeToSpotTimestamp: true,
-                },
-            );
-            expect(mockConnection.sendCommand).toHaveBeenNthCalledWith(
-                2,
-                ProtoOASubscribeLiveTrendbarReq.name,
-                {
-                    symbolId: 1,
-                    period: 'M1',
-                    ctidTraderAccountId: 12345,
-                },
-            );
-        });
-
-        it('should filter events by symbolId and accountId', async () => {
-            const mockSubscribeSpotsRes: ProtoOASubscribeSpotsRes = {
-                ctidTraderAccountId: 12345,
-            };
-
-            const mockSubscribeLiveTrendbarRes: ProtoOASubscribeLiveTrendbarRes =
-                {
-                    ctidTraderAccountId: 12345,
-                };
-
-            mockConnection.sendCommand
-                .mockResolvedValueOnce(mockSubscribeSpotsRes)
-                .mockResolvedValueOnce(mockSubscribeLiveTrendbarRes);
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            const observable = symbolsManager.subscribeLiveTrendBars(opts);
-            const events: any[] = [];
-
-            const subscription = observable.subscribe((event) => {
-                events.push(event);
-            });
-
-            await new Promise((resolve) => setTimeout(resolve, 10));
-
-            const onHandler = mockConnection.on.mock.calls[0][1];
-
-            // Event with different symbolId - should be filtered out
-            const wrongSymbolEvent = {
-                type: ProtoOAPayloadType.PROTO_OA_SPOT_EVENT,
-                descriptor: {
-                    ctidTraderAccountId: 12345,
-                    symbolId: 2,
-                    timestamp: 1640000000000,
-                    trendbar: [],
-                },
-            };
-
-            // Event with different accountId - should be filtered out
-            const wrongAccountEvent = {
-                type: ProtoOAPayloadType.PROTO_OA_SPOT_EVENT,
-                descriptor: {
-                    ctidTraderAccountId: 99999,
-                    symbolId: 1,
-                    timestamp: 1640000000000,
-                    trendbar: [],
-                },
-            };
-
-            // Correct event - should be accepted
-            const correctEvent = {
-                type: ProtoOAPayloadType.PROTO_OA_SPOT_EVENT,
-                descriptor: {
-                    ctidTraderAccountId: 12345,
-                    symbolId: 1,
-                    timestamp: 1640000000000,
-                    trendbar: [
-                        {
-                            period: 'M1',
-                            volume: 1000000,
-                            utcTimestampInMinutes: 27333,
-                        },
-                    ],
-                },
-            };
-
-            onHandler(wrongSymbolEvent);
-            onHandler(wrongAccountEvent);
-            onHandler(correctEvent);
-
-            await new Promise((resolve) => setTimeout(resolve, 10));
-
-            expect(events).toHaveLength(1);
-            expect(events[0].symbolId).toBe(1);
-
-            subscription.unsubscribe();
-        });
-
-        it('should handle optional fields in spot events', async () => {
-            const mockSubscribeSpotsRes: ProtoOASubscribeSpotsRes = {
-                ctidTraderAccountId: 12345,
-            };
-
-            const mockSubscribeLiveTrendbarRes: ProtoOASubscribeLiveTrendbarRes =
-                {
-                    ctidTraderAccountId: 12345,
-                };
-
-            mockConnection.sendCommand
-                .mockResolvedValueOnce(mockSubscribeSpotsRes)
-                .mockResolvedValueOnce(mockSubscribeLiveTrendbarRes);
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            const observable = symbolsManager.subscribeLiveTrendBars(opts);
-
-            const mockEvent = {
-                type: ProtoOAPayloadType.PROTO_OA_SPOT_EVENT,
-                descriptor: {
-                    ctidTraderAccountId: 12345,
-                    symbolId: 1,
-                    // timestamp, sessionClose, ask, bid are optional and not present
-                    trendbar: [
-                        {
-                            period: 'M1',
-                            volume: 1000000,
-                            utcTimestampInMinutes: 27333,
-                            // deltaOpen, deltaHigh, deltaClose, low are optional and not present
-                        },
-                    ],
-                },
-            };
-
-            const eventPromise = firstValueFrom(observable.pipe(take(1)));
-
-            await new Promise((resolve) => setTimeout(resolve, 10));
-
-            const onHandler = mockConnection.on.mock.calls[0][1];
-            onHandler(mockEvent);
-
-            const result = await eventPromise;
-
-            expect(result).toEqual({
-                symbolId: 1,
-                timestamp: undefined,
-                sessionClose: undefined,
-                ask: undefined,
-                bid: undefined,
-                trendbar: [
-                    {
-                        period: 'M1',
-                        volume: 1000000,
-                        utcTimestampInMinutes: 27333,
-                        deltaOpen: undefined,
-                        deltaHigh: undefined,
-                        deltaClose: undefined,
-                        low: undefined,
-                    },
-                ],
-            });
-        });
-
-        it('should throw SubscribeSpotEventsError on spot subscription failure', async () => {
-            mockConnection.sendCommand.mockRejectedValue(
-                new Error('Spot subscription failed'),
-            );
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            const observable = symbolsManager.subscribeLiveTrendBars(opts);
-
-            await expect(firstValueFrom(observable)).rejects.toThrow(
-                SubscribeSpotEventsError,
-            );
-
-            expect(mockLogger.error).toHaveBeenCalled();
-        });
-
-        it('should throw SubscribeLiveTrendBarsInternalError on trend bar subscription failure', async () => {
-            const mockSubscribeSpotsRes: ProtoOASubscribeSpotsRes = {
-                ctidTraderAccountId: 12345,
-            };
-
-            mockConnection.sendCommand
-                .mockResolvedValueOnce(mockSubscribeSpotsRes)
-                .mockRejectedValueOnce(
-                    new Error('Trend bar subscription failed'),
-                );
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            const observable = symbolsManager.subscribeLiveTrendBars(opts);
-
-            await expect(firstValueFrom(observable)).rejects.toThrow(
-                SubscribeLiveTrendBarsInternalError,
-            );
-
-            expect(mockLogger.error).toHaveBeenCalled();
-        });
-
-        it('should handle multiple trendbars in a single event', async () => {
-            const mockSubscribeSpotsRes: ProtoOASubscribeSpotsRes = {
-                ctidTraderAccountId: 12345,
-            };
-
-            const mockSubscribeLiveTrendbarRes: ProtoOASubscribeLiveTrendbarRes =
-                {
-                    ctidTraderAccountId: 12345,
-                };
-
-            mockConnection.sendCommand
-                .mockResolvedValueOnce(mockSubscribeSpotsRes)
-                .mockResolvedValueOnce(mockSubscribeLiveTrendbarRes);
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            const observable = symbolsManager.subscribeLiveTrendBars(opts);
-
-            const mockEvent = {
-                type: ProtoOAPayloadType.PROTO_OA_SPOT_EVENT,
-                descriptor: {
-                    ctidTraderAccountId: 12345,
-                    symbolId: 1,
-                    timestamp: 1640000000000,
-                    trendbar: [
-                        {
-                            period: 'M1',
-                            volume: 1000000,
-                            low: 1.12,
-                            utcTimestampInMinutes: 27333,
-                            deltaOpen: 50,
-                            deltaHigh: 100,
-                            deltaClose: 75,
-                        },
-                        {
-                            period: 'M5',
-                            volume: 5000000,
-                            low: 1.115,
-                            utcTimestampInMinutes: 27335,
-                            deltaOpen: 100,
-                            deltaHigh: 200,
-                            deltaClose: 150,
-                        },
-                    ],
-                },
-            };
-
-            const eventPromise = firstValueFrom(observable.pipe(take(1)));
-
-            await new Promise((resolve) => setTimeout(resolve, 10));
-
-            const onHandler = mockConnection.on.mock.calls[0][1];
-            onHandler(mockEvent);
-
-            const result = await eventPromise;
-
-            expect(result).toHaveLength(2);
-            expect(result[0].period).toBe('M1');
-            expect(result[1].period).toBe('M5');
-        });
-
-        it('should set subscribeToSpotTimestamp to true when subscribing to spots', async () => {
-            const mockSubscribeSpotsRes: ProtoOASubscribeSpotsRes = {
-                ctidTraderAccountId: 12345,
-            };
-
-            const mockSubscribeLiveTrendbarRes: ProtoOASubscribeLiveTrendbarRes =
-                {
-                    ctidTraderAccountId: 12345,
-                };
-
-            mockConnection.sendCommand
-                .mockResolvedValueOnce(mockSubscribeSpotsRes)
-                .mockResolvedValueOnce(mockSubscribeLiveTrendbarRes);
-
-            const opts = {
-                symbolId: 1,
-                period: 'M1' as any,
-            };
-
-            symbolsManager.subscribeLiveTrendBars(opts);
-
-            await new Promise((resolve) => setTimeout(resolve, 10));
-
-            expect(mockConnection.sendCommand).toHaveBeenNthCalledWith(
-                1,
-                ProtoOASubscribeSpotsReq.name,
-                expect.objectContaining({
-                    subscribeToSpotTimestamp: true,
-                }),
-            );
         });
     });
 });

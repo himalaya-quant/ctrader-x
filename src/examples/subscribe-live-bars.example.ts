@@ -7,12 +7,43 @@ import { ProtoOATrendbarPeriod } from '../models/proto/models/ProtoOATrendbarPer
     const client = new cTraderX();
 
     await client.connect();
-    client.symbols
+    client.symbolsUpdates
         .subscribeLiveTrendBars({
             period: ProtoOATrendbarPeriod.M1,
             // symbolId: 1, // EURUSD
             symbolId: 10026, // BTCUSD
         })
-        .pipe(tap((event) => console.log(event)))
+        .pipe(tap((event) => console.log(`Sub 1: ${event}`)))
         .subscribe();
+
+    setTimeout(() => {
+        client.symbolsUpdates
+            .subscribeLiveTrendBars({
+                period: ProtoOATrendbarPeriod.M1,
+                // symbolId: 1, // EURUSD
+                symbolId: 10026, // BTCUSD
+            })
+            .pipe(tap((event) => console.log(`Sub 2: ${event}`)))
+            .subscribe();
+    }, 5000);
+
+    setTimeout(async () => {
+        await client.symbolsUpdates.unsubscribeLiveTrendBars({
+            period: ProtoOATrendbarPeriod.M1,
+            // symbolId: 1, // EURUSD
+            symbolId: 10026, // BTCUSD
+        });
+        console.log(`Unsubscribed`);
+    }, 8000);
+
+    setTimeout(() => {
+        client.symbolsUpdates
+            .subscribeLiveTrendBars({
+                period: ProtoOATrendbarPeriod.M1,
+                // symbolId: 1, // EURUSD
+                symbolId: 10026, // BTCUSD
+            })
+            .pipe(tap((event) => console.log(`Sub 3: ${event}`)))
+            .subscribe();
+    }, 10000);
 })();
