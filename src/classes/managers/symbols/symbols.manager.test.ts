@@ -5,20 +5,11 @@ import { ProtoOASymbolByIdReq } from '../../../models/proto/messages/symbols/Pro
 import { ProtoOASymbolByIdRes } from '../../../models/proto/messages/symbols/ProtoOASymbolByIdRes';
 import { ProtoOAGetTrendbarsReq } from '../../../models/proto/messages/symbols/ProtoOAGetTrendbarsReq';
 import { ProtoOAGetTrendbarsRes } from '../../../models/proto/messages/symbols/ProtoOAGetTrendbarsRes';
-import { ProtoOASubscribeSpotsReq } from '../../../models/proto/messages/common/ProtoOASubscribeSpotsReq';
-import { ProtoOASubscribeSpotsRes } from '../../../models/proto/messages/common/ProtoOASubscribeSpotsRes';
-import { ProtoOASubscribeLiveTrendbarReq } from '../../../models/proto/messages/symbols/ProtoOASubscribeLiveTrendbarReq';
-import { ProtoOASubscribeLiveTrendbarRes } from '../../../models/proto/messages/symbols/ProtoOASubscribeLiveTrendbarRes';
 import { GetSymbolsListError } from './errors/get-symbols-list.error';
 import { GetSymbolsDetailsError } from './errors/get-symbols-details.error';
 import { GetTrendBarsError } from './errors/get-trend-bars.error';
-import { SubscribeSpotEventsError } from './errors/subscribe-spot-events.error';
-import { SubscribeLiveTrendBarsInternalError } from './errors/subscribe-live-trend-bars.error';
 import { SymbolsManager } from './symbols.manager';
-import { ProtoOAPayloadType } from '../../../models/proto/payload-types/payload-types.enum';
-import { firstValueFrom, take } from 'rxjs';
 import { OHLCVPositions } from '../../../models/common/ohlcv';
-import { only } from 'node:test';
 
 describe('SymbolsManager - Unit Tests', () => {
     let symbolsManager: SymbolsManager;

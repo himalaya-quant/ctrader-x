@@ -55,6 +55,7 @@ export class cTraderX {
             credentials,
             this.connection,
             this.logger,
+            this.symbolsManager,
         );
     }
 

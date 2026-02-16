@@ -15,12 +15,11 @@ export class TrendBarUtils {
     ) {
         // Initialize the output array, so the looping and re-assign by index will be
         // faster than mapping over the original array, or pushing in another one
-        const output: OHLCV[] = new Array<OHLCV>(trendbars.length).fill(
-            null!,
-        );
+        const output: OHLCV[] = new Array<OHLCV>(trendbars.length).fill(null!);
 
         for (let i = 0; i < trendbars.length; i++) {
             const trendbar = trendbars[i];
+
             const {
                 low,
                 volume,
@@ -29,7 +28,7 @@ export class TrendBarUtils {
                 deltaOpen,
                 utcTimestampInMinutes,
             } = trendbar;
-            
+
             const T = +utcTimestampInMinutes! * 60000;
             const O = TrendBarUtils.getPriceFromRelative(
                 precision,
@@ -40,10 +39,17 @@ export class TrendBarUtils {
                 +low! + +deltaHigh!,
             );
             const L = TrendBarUtils.getPriceFromRelative(precision, +low!);
-            const C = TrendBarUtils.getPriceFromRelative(
-                precision,
-                +low! + +deltaClose!,
-            );
+            // const C = TrendBarUtils.getPriceFromRelative(
+            //     precision,
+            //     +low! + +deltaClose!,
+            // );
+            const C =
+                deltaClose !== undefined
+                    ? TrendBarUtils.getPriceFromRelative(
+                          precision,
+                          +low! + +deltaClose,
+                      )
+                    : TrendBarUtils.getPriceFromRelative(precision, +low!);
             const V = +volume;
             output[i] = [T, O, H, L, C, V];
         }

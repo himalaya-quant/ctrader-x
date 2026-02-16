@@ -25,8 +25,9 @@ import { TimeFrame } from '../../../utils/timeframe.utils';
 import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';
 import { ProtoOAUnsubscribeLiveTrendbarReq } from '../../../models/proto/messages/symbols/ProtoOAUnsubscribeLiveTrendbarReq';
 import { cTraderXError } from '../../models/ctrader-x-error.model';
-import { ProtoOAUnsubscribeLiveTrendbarRes } from '../../../models/proto/messages/symbols/ProtoOAUnsubscribeLiveTrendbarRes';
 import { UnsubscribeLiveTrendBarsError } from './errors/unsubscribe-live-trend-bars.error';
+import { SymbolsManager } from './symbols.manager';
+import { TrendBarUtils } from '../../../utils/trendbar.utils';
 
 export interface ISubscribeBarsOptions extends ProtoOASubscribeLiveTrendbarReq {}
 export interface IUnsubscribeBarsOptions extends ProtoOAUnsubscribeLiveTrendbarReq {}
@@ -35,12 +36,14 @@ export interface SubscribeLiveTrendBarsEvent {
     symbolId: number;
     ohlcv: OHLCV;
     lastBarTime: number;
+    isInitialized: boolean;
     period: ProtoOATrendbarPeriod;
 }
 
 export interface ILiveBarsSubscriber {
     period: number;
     lastBar: OHLCV | null;
+    isInitialized: boolean;
     lastBarTime: number | null;
     subscriber: Subject<unknown>;
 }
@@ -70,6 +73,7 @@ export class SymbolsUpdatesManager extends BaseManager {
         protected readonly credentials: ICredentials,
         protected readonly connection: CTraderConnection,
         protected readonly logger: ILogger,
+        private readonly symbolsManager: SymbolsManager,
     ) {
         super();
         this.liveBarsSubscriptionsMapper$.subscribe();
@@ -83,13 +87,23 @@ export class SymbolsUpdatesManager extends BaseManager {
                 if (idx === null) return;
 
                 subscribers.subscribers.forEach(
-                    ({ lastBar, lastBarTime, period, subscriber }, idx) => {
+                    (
+                        {
+                            lastBar,
+                            lastBarTime,
+                            period,
+                            subscriber,
+                            isInitialized,
+                        },
+                        idx,
+                    ) => {
                         const update =
                             this.spotEventDescriptorToSubscribeLiveBarsEvent(
                                 event,
                                 period,
                                 lastBar,
                                 lastBarTime,
+                                isInitialized,
                             );
                         if (!update) return;
 
@@ -101,6 +115,8 @@ export class SymbolsUpdatesManager extends BaseManager {
                             symbolId: update.symbolId,
                         });
 
+                        subscribers.subscribers[idx].isInitialized =
+                            update.isInitialized;
                         subscribers.subscribers[idx].lastBar = lastBar;
                         subscribers.subscribers[idx].lastBarTime = lastBarTime;
                     },
@@ -156,8 +172,8 @@ export class SymbolsUpdatesManager extends BaseManager {
             lastBarTime: null,
             period: opts.period,
             subscriber: subject,
+            isInitialized: false,
         });
-
         return from(
             this.subscribeSpotEvents({
                 symbolId: opts.symbolId,
@@ -184,56 +200,85 @@ export class SymbolsUpdatesManager extends BaseManager {
         period: ProtoOATrendbarPeriod,
         lastBar: OHLCV | null,
         lastBarTime: number | null,
+        isInitialized: boolean,
     ): SubscribeLiveTrendBarsEvent | null {
         let lastBarClone = structuredClone(lastBar);
         let lastBarTimeClone = structuredClone(lastBarTime);
 
+        // Calculate current price from bid/ask (used only for CLOSE)
         const price = Price.getPrice(
             +event.descriptor.bid,
             +event.descriptor.ask,
         );
         if (price === null) return null;
 
-        // Calculate at which bar time this tick corresponds
-        const barTimestamp = TimeFrame.roundToTimeFrame(
-            event.descriptor.timestamp,
-            ProtoOATrendbarPeriod[period],
+        // Find the trendbar for our subscribed period
+        const trendbar = event.descriptor.trendbar?.find(
+            (tb) => tb.period === ProtoOATrendbarPeriod[period],
         );
 
-        // If bar timestamp has changed, the previous bar has closed.
-        if (lastBarTimeClone && barTimestamp !== lastBarTimeClone) {
-            lastBarClone = null; // Reset
+        // If no trendbar for our period, skip this event
+        // (shouldn't happen based on your logs, but safety check)
+        if (!trendbar) {
+            return null;
         }
 
-        // Initialize new bar if necessary
-        if (!lastBarClone) {
-            lastBarClone = [barTimestamp, price, price, price, price, 0];
+        // Extract bar timestamp from trendbar (source of truth)
+        const barTimestamp = trendbar.utcTimestampInMinutes * 60000;
+
+        // Convert trendbar prices
+        const LOW = trendbar.low / 100000;
+        const OPEN = this.normalizePrice(LOW, trendbar.deltaOpen);
+        const HIGH = this.normalizePrice(LOW, trendbar.deltaHigh);
+        const VOLUME = trendbar.volume;
+
+        // ============================================================================
+        // SCENARIO 1: First event OR new bar detected
+        // ============================================================================
+        if (!lastBarTimeClone || barTimestamp !== lastBarTimeClone) {
+            // New bar (or first bar) - initialize from trendbar + current price
+            lastBarClone = [barTimestamp, OPEN, HIGH, LOW, price, VOLUME];
             lastBarTimeClone = barTimestamp;
+            isInitialized = true;
+
+            return {
+                period,
+                isInitialized,
+                ohlcv: lastBarClone,
+                symbolId: event.descriptor.symbolId,
+                lastBarTime: barTimestamp,
+            };
         }
 
-        // Update current bar
-        lastBarClone[OHLCVPositions.HIGH] = Math.max(
-            lastBarClone[OHLCVPositions.HIGH],
-            price,
-        );
-        lastBarClone[OHLCVPositions.LOW] = Math.min(
-            lastBarClone[OHLCVPositions.LOW],
-            price,
-        );
-        lastBarClone[OHLCVPositions.CLOSE] = price;
-
-        // If there's a trendbar, update the volume, since we cannot calculate it
-        if (event.descriptor.trendbar && event.descriptor.trendbar.length > 0) {
-            lastBarClone[OHLCVPositions.VOLUME] =
-                +event.descriptor.trendbar[0].volume;
+        // ============================================================================
+        // SCENARIO 2: Same bar - update from trendbar + current price
+        // ============================================================================
+        // WHY use trendbar values: The server continuously updates HIGH/LOW/VOLUME
+        // as the bar develops. We trust the server's calculations.
+        //
+        // WHY use price for CLOSE: deltaClose is null until bar closes, so CLOSE
+        // is always the current tick price.
+        if (!lastBarClone) {
+            lastBarClone = [barTimestamp, OPEN, HIGH, LOW, price, VOLUME];
+        } else {
+            lastBarClone[OHLCVPositions.OPEN] = OPEN; // Should not change, but update anyway
+            lastBarClone[OHLCVPositions.HIGH] = HIGH; // Server's accumulated HIGH
+            lastBarClone[OHLCVPositions.LOW] = LOW; // Server's accumulated LOW
+            lastBarClone[OHLCVPositions.CLOSE] = price; // Current tick
+            lastBarClone[OHLCVPositions.VOLUME] = VOLUME; // Server's accumulated VOLUME
         }
 
         return {
             period,
+            isInitialized,
             ohlcv: lastBarClone,
             symbolId: event.descriptor.symbolId,
-            lastBarTime: lastBarClone[OHLCVPositions.TIME],
+            lastBarTime: barTimestamp,
         };
+    }
+
+    private normalizePrice(low: number, priceDelta: number) {
+        return low + (priceDelta || 0) / 100000;
     }
 
     private isTrackedSubscribeLiveTrendBarsDescriptor(
@@ -255,6 +300,7 @@ export class SymbolsUpdatesManager extends BaseManager {
                 subscribers: <ILiveBarsSubscribers>{
                     symbolId,
                     subscribers: [],
+                    pricePrecision: null!,
                 },
             };
         }
@@ -267,7 +313,7 @@ export class SymbolsUpdatesManager extends BaseManager {
 
     private removeSubscribeLiveTrendBarsSubscription(
         symbolId: number,
-        period: ProtoOATrendbarPeriod,
+        period: ProtoOATrendbarPeriod | '*',
     ) {
         const subscriptionIdx =
             this.liveBarsSubsSymbolsToSubscribersMap.get(symbolId);
@@ -277,7 +323,7 @@ export class SymbolsUpdatesManager extends BaseManager {
             this.liveBarsSubscriptions$.getValue()[subscriptionIdx];
         symbolSubscriptions.subscribers =
             symbolSubscriptions.subscribers.filter((s) => {
-                if (s.period === period) {
+                if (period === '*' || s.period === period) {
                     s.subscriber.complete();
                     return false;
                 }
@@ -310,7 +356,7 @@ export class SymbolsUpdatesManager extends BaseManager {
             );
             if (existingSubscriberIdx !== -1) {
                 const existingSubscriber =
-                    allSubscriptions[existingSubscriberIdx].subscribers[
+                    allSubscriptions[existingSubscriptionIdx].subscribers[
                         existingSubscriberIdx
                     ];
                 this.logger.warn(

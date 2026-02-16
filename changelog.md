@@ -1,3 +1,7 @@
+# 0.0.7
+- Improved the way subscribeLiveTrendBars builds the bars. Now relying mainly on 
+the updates found inside the `trendbar` array of the `ProtoOASpotEvent`.
+
 # 0.0.6
 
 - Fix heartbeat

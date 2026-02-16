@@ -10,22 +10,26 @@ export abstract class BaseManager {
     protected readonly connection: CTraderConnection;
 
     protected logCallAttempt(method: Function, extra?: Record<string, any>) {
-        this.logger.debug(
-            `Attempting ${method.name} call` + extra
-                ? JSON.stringify(extra)
-                : '',
-        );
+        if (extra) {
+            this.logger.debug(
+                `Attempting ${method.name} call: ${JSON.stringify(extra)}`,
+            );
+        } else {
+            this.logger.debug(`Attempting ${method.name} call`);
+        }
     }
 
     protected logCallAttemptSuccess(
         method: Function,
         extra?: Record<string, any>,
     ) {
-        this.logger.debug(
-            `Call attempt to ${method.name} succeeded` + extra
-                ? JSON.stringify(extra)
-                : '',
-        );
+        if (extra) {
+            this.logger.debug(
+                `Call attempt to ${method.name} succeeded: ${JSON.stringify(extra)}`,
+            );
+        } else {
+            this.logger.debug(`Call attempt to ${method.name} succeeded`);
+        }
     }
 
     protected logCallAttemptFailure(method: Function, error: unknown) {
