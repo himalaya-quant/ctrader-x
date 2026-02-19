@@ -1,3 +1,6 @@
+# 0.0.8
+- Updated readme
+
 # 0.0.7
 - Improved the way subscribeLiveTrendBars builds the bars. Now relying mainly on 
 the updates found inside the `trendbar` array of the `ProtoOASpotEvent`.
