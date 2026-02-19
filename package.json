@@ -36,6 +36,9 @@
         "spotware",
         "himalaya-quant"
     ],
+    "publishConfig": {
+        "access": "public"
+    },
     "author": "Caius Citiriga",
     "license": "MIT",
     "bugs": {

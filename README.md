@@ -92,5 +92,6 @@ CTRADERX_DEBUG_LOGS
 Or you can provide your own logger implementation by implementing the `ILogger`
 interface, and providing it during `cTraderX` client instantiation.
 
-<br>
-<center>Developed with ❤️ by Caius Citiriga</center>
+<br/>
+<br/>
+<p align="center">Developed with ❤️ by Caius Citiriga</p>
