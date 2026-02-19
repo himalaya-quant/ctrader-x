@@ -13,7 +13,10 @@ behind an intuitive and easy to use interface.
 
 # Features
 
-- Basic authentication
+- Basic authentication (still does not support automatic flow)
+- Symbols information fetching
+- Symbols historical bars fetching
+- Symbol live bars updates subscription
 
 # Getting started
 
