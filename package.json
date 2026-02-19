@@ -1,5 +1,5 @@
 {
-    "name": "ctrader-x",
+    "name": "@himalaya-quant/ctrader-x",
     "version": "0.0.7",
     "description": "A typescript cTrader OpenAPI implementation",
     "main": "dist/src/index.js",

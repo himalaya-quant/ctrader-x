@@ -32,6 +32,7 @@ const client = new cTraderX({
     // by default cTraderX tries to read the credentials from env
     // see Authentication section for more information.
     // optional configuration options:
+
     // live?: boolean;
     // clientId?: string;
     // clientSecret?: string;
@@ -40,8 +41,24 @@ const client = new cTraderX({
     // logger?: ILogger;
 });
 
-client.connect().then(() => console.log('connected!'));
+await client.connect();
+console.log('connected!');
+
+const symbolsList = await client.symbols.getSymbolsList();
+console.log(symbolsList);
 ```
+
+### Examples:
+
+For more examples, see the `src/examples` folder where you can find examples about:
+
+- authentication
+- get symbols list & info
+- get symbol bars
+- subscribe to live bars
+
+And other examples that might come in the future.
+
 
 # Authentication
 
@@ -71,3 +88,6 @@ CTRADERX_DEBUG_LOGS
 
 Or you can provide your own logger implementation by implementing the `ILogger`
 interface, and providing it during `cTraderX` client instantiation.
+
+<br>
+<center>Developed with ❤️ by Caius Citiriga</center>
