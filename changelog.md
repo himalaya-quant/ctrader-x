@@ -1,4 +1,8 @@
 # 0.0.8
+- Updated tsconfig
+- Exposed models and Proto types
+
+# 0.0.8
 - Updated readme
 
 # 0.0.7
