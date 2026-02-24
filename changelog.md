@@ -1,15 +1,21 @@
-# 0.0.9
-- Updated tsconfig
+# 0.0.10
+
 - Added debug mode to log details
 - Lowered heartbeat from 9s to 5s
+
+# 0.0.9
+
+- Updated tsconfig
 - Exposed models and Proto types
 
 # 0.0.8
+
 - Updated readme
 
 # 0.0.7
-- Improved the way subscribeLiveTrendBars builds the bars. Now relying mainly on 
-the updates found inside the `trendbar` array of the `ProtoOASpotEvent`.
+
+- Improved the way subscribeLiveTrendBars builds the bars. Now relying mainly on
+  the updates found inside the `trendbar` array of the `ProtoOASpotEvent`.
 
 # 0.0.6
 
