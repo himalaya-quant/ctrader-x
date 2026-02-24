@@ -12,6 +12,7 @@ import { SymbolsUpdatesManager } from './managers/symbols/symbols-updates.manage
 export class cTraderX {
     private readonly port = 5035;
     private readonly host: string;
+    private readonly debug: boolean;
     private readonly logger: ILogger;
     private readonly connection: CTraderConnection;
 
@@ -25,6 +26,7 @@ export class cTraderX {
         this.host = config?.live
             ? `live.ctraderapi.com`
             : `demo.ctraderapi.com`;
+        this.debug = !!config?.debug;
         this.logger = config?.logger || new Logger();
 
         const credentials = {
@@ -91,9 +93,12 @@ export class cTraderX {
     private sendHeartbeat() {
         if (!this.isConnected) return;
         this.connection.sendHeartbeat();
+        if (this.debug) {
+            this.logger.debug(`Heartbeat event sent`);
+        }
         setTimeout(() => {
             this.sendHeartbeat();
-        }, 1000 * 9);
+        }, 1000 * 5);
     }
 
     private ensureConnectedOrThrow() {

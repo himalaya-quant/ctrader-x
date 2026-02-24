@@ -1,5 +1,7 @@
-# 0.0.8
+# 0.0.9
 - Updated tsconfig
+- Added debug mode to log details
+- Lowered heartbeat from 9s to 5s
 - Exposed models and Proto types
 
 # 0.0.8

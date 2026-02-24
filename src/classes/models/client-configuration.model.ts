@@ -36,4 +36,9 @@ export interface IConfiguration {
      * Custom logger implementation
      */
     logger?: ILogger;
+
+    /**
+     * Enables additional verbose logs details
+     */
+    debug?: boolean;
 }
