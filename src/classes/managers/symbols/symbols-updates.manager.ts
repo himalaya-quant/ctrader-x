@@ -397,10 +397,12 @@ export class SymbolsUpdatesManager extends BaseManager {
             return result;
         } catch (e) {
             if (cTraderXError.isProtoOAErrorRes(e)) {
-                if (e.errorCode === 'ALREADY_SUBSCRIBED')
+                if (e.errorCode === 'ALREADY_SUBSCRIBED') {
+                    this.logCallAttemptSuccess(this.subscribeSpotEvents);
                     return of<ProtoOASubscribeLiveTrendbarRes>({
                         ctidTraderAccountId: optsClone.ctidTraderAccountId,
                     });
+                }
             }
             throw this.handleCTraderCallError(
                 e,
@@ -425,10 +427,14 @@ export class SymbolsUpdatesManager extends BaseManager {
             return result;
         } catch (e) {
             if (cTraderXError.isProtoOAErrorRes(e)) {
-                if (e.errorCode === 'ALREADY_SUBSCRIBED')
+                if (e.errorCode === 'ALREADY_SUBSCRIBED') {
+                    this.logCallAttemptSuccess(
+                        this.subscribeLiveTrendBarsInternal,
+                    );
                     return of<ProtoOASubscribeLiveTrendbarRes>({
                         ctidTraderAccountId: optsClone.ctidTraderAccountId,
                     });
+                }
             }
             throw this.handleCTraderCallError(
                 e,

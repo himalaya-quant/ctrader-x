@@ -1,3 +1,7 @@
+# 0.0.11
+
+- Logging success attempt in case of already subscribed
+
 # 0.0.10
 
 - Added debug mode to log details
