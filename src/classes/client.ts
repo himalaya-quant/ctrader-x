@@ -73,6 +73,7 @@ export class cTraderX {
 
     disconnect() {
         this.connection.close();
+        this.isConnected = false;
     }
 
     async connect(): Promise<void> {

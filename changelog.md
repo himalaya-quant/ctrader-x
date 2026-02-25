@@ -1,3 +1,7 @@
+# 0.0.12
+
+- Marking isDisconnected when disconnect is called
+
 # 0.0.11
 
 - Logging success attempt in case of already subscribed
