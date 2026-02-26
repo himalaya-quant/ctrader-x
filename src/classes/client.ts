@@ -14,7 +14,7 @@ export class cTraderX {
     private readonly host: string;
     private readonly debug: boolean;
     private readonly logger: ILogger;
-    private readonly connection: CTraderConnection;
+    private connection: CTraderConnection;
 
     private readonly symbolsManager: SymbolsManager;
     private readonly authManager: AuthenticationManager;
@@ -38,10 +38,7 @@ export class cTraderX {
                 Config.SPOTWARE_CTID_TRADER_ACCOUNT_ID,
         };
 
-        this.connection = new CTraderConnection({
-            host: this.host,
-            port: this.port,
-        });
+        this.createConnection();
 
         this.symbolsManager = new SymbolsManager(
             credentials,
@@ -72,12 +69,14 @@ export class cTraderX {
     }
 
     disconnect() {
-        this.connection.close();
         this.isConnected = false;
+        this.connection.close();
+        this.connection = null;
     }
 
     async connect(): Promise<void> {
         if (this.isConnected) return;
+        this.createConnection();
         try {
             await this.connection.open();
             await this.authManager.authenticateApp();
@@ -104,5 +103,12 @@ export class cTraderX {
 
     private ensureConnectedOrThrow() {
         if (!this.isConnected) throw new ClientNotConnectedError();
+    }
+
+    private createConnection() {
+        this.connection = new CTraderConnection({
+            host: this.host,
+            port: this.port,
+        });
     }
 }

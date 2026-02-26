@@ -1,3 +1,8 @@
+# 0.0.13
+
+- Destroying connection on disconnect and recreating it on connect. In the attempt
+  to recover the client in case of a TIMEOUT error
+
 # 0.0.12
 
 - Marking isDisconnected when disconnect is called
