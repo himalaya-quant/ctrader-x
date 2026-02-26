@@ -1,3 +1,8 @@
+# 0.0.14
+
+- Re subscribing live updates on reconnection, preserving original subscriptions
+  without any interruption
+
 # 0.0.13
 
 - Destroying connection on disconnect and recreating it on connect. In the attempt

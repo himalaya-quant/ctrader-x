@@ -8,17 +8,19 @@ import { IConfiguration } from './models/client-configuration.model';
 import { SymbolsManager } from './managers/symbols/symbols.manager';
 import { ClientNotConnectedError } from './errors/client-not-connected.error';
 import { SymbolsUpdatesManager } from './managers/symbols/symbols-updates.manager';
+import { ICredentials } from './managers/models/credentials.model';
 
 export class cTraderX {
     private readonly port = 5035;
     private readonly host: string;
     private readonly debug: boolean;
     private readonly logger: ILogger;
+    private readonly credentials: ICredentials;
     private connection: CTraderConnection;
 
-    private readonly symbolsManager: SymbolsManager;
-    private readonly authManager: AuthenticationManager;
-    private readonly symbolsUpdatesManager: SymbolsUpdatesManager;
+    private symbolsManager: SymbolsManager;
+    private authManager: AuthenticationManager;
+    private symbolsUpdatesManager: SymbolsUpdatesManager;
 
     private isConnected = false;
 
@@ -29,7 +31,7 @@ export class cTraderX {
         this.debug = !!config?.debug;
         this.logger = config?.logger || new Logger();
 
-        const credentials = {
+        this.credentials = {
             clientId: config?.clientId || Config.SPOTWARE_CLIENT_ID,
             accessToken: config?.accessToken || Config.SPOTWARE_ACCESS_TOKEN,
             clientSecret: config?.clientSecret || Config.SPOTWARE_CLIENT_SECRET,
@@ -39,23 +41,6 @@ export class cTraderX {
         };
 
         this.createConnection();
-
-        this.symbolsManager = new SymbolsManager(
-            credentials,
-            this.connection,
-            this.logger,
-        );
-        this.authManager = new AuthenticationManager(
-            credentials,
-            this.connection,
-            this.logger,
-        );
-        this.symbolsUpdatesManager = new SymbolsUpdatesManager(
-            credentials,
-            this.connection,
-            this.logger,
-            this.symbolsManager,
-        );
     }
 
     get symbols() {
@@ -76,11 +61,17 @@ export class cTraderX {
 
     async connect(): Promise<void> {
         if (this.isConnected) return;
+
         this.createConnection();
+        this.initializeCoreManagers();
+
         try {
             await this.connection.open();
             await this.authManager.authenticateApp();
             await this.authManager.authenticateUser();
+
+            this.initializeSecondaryManagers();
+
             this.isConnected = true;
             this.sendHeartbeat();
         } catch (e) {
@@ -110,5 +101,26 @@ export class cTraderX {
             host: this.host,
             port: this.port,
         });
+    }
+
+    private initializeCoreManagers() {
+        this.authManager = new AuthenticationManager(
+            this.credentials,
+            this.connection,
+            this.logger,
+        );
+    }
+
+    private async initializeSecondaryManagers() {
+        this.symbolsManager = new SymbolsManager(
+            this.credentials,
+            this.connection,
+            this.logger,
+        );
+        this.symbolsUpdatesManager = new SymbolsUpdatesManager(
+            this.credentials,
+            this.connection,
+            this.logger,
+        );
     }
 }

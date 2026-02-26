@@ -21,13 +21,10 @@ import { ProtoOASpotEvent } from '../../../models/proto/models/ProtoOASpotEvent'
 import { CTraderLayerEvent } from '@reiryoku/ctrader-layer/build/src/core/events/CTraderLayerEvent';
 import { OHLCV, OHLCVPositions } from '../../../models/common/ohlcv';
 import { Price } from '../../../utils/price.utils';
-import { TimeFrame } from '../../../utils/timeframe.utils';
 import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';
 import { ProtoOAUnsubscribeLiveTrendbarReq } from '../../../models/proto/messages/symbols/ProtoOAUnsubscribeLiveTrendbarReq';
 import { cTraderXError } from '../../models/ctrader-x-error.model';
 import { UnsubscribeLiveTrendBarsError } from './errors/unsubscribe-live-trend-bars.error';
-import { SymbolsManager } from './symbols.manager';
-import { TrendBarUtils } from '../../../utils/trendbar.utils';
 
 export interface ISubscribeBarsOptions extends ProtoOASubscribeLiveTrendbarReq {}
 export interface IUnsubscribeBarsOptions extends ProtoOAUnsubscribeLiveTrendbarReq {}
@@ -53,13 +50,15 @@ export interface ILiveBarsSubscribers {
     subscribers: ILiveBarsSubscriber[];
 }
 
-export class SymbolsUpdatesManager extends BaseManager {
-    private readonly liveBarsSubscriptions$: BehaviorSubject<
+class SubscriptionsManager {
+    static readonly liveBarsSubscriptions$: BehaviorSubject<
         ILiveBarsSubscribers[]
     > = new BehaviorSubject([]);
+}
 
+export class SymbolsUpdatesManager extends BaseManager {
     private readonly liveBarsSubscriptionsMapper$ =
-        this.liveBarsSubscriptions$.pipe(
+        SubscriptionsManager.liveBarsSubscriptions$.pipe(
             tap((values) =>
                 values.forEach(({ symbolId }, idx) => {
                     this.liveBarsSubsSymbolsToSubscribersMap.set(symbolId, idx);
@@ -73,17 +72,35 @@ export class SymbolsUpdatesManager extends BaseManager {
         protected readonly credentials: ICredentials,
         protected readonly connection: CTraderConnection,
         protected readonly logger: ILogger,
-        private readonly symbolsManager: SymbolsManager,
     ) {
         super();
         this.liveBarsSubscriptionsMapper$.subscribe();
 
+        const subscriptions =
+            SubscriptionsManager.liveBarsSubscriptions$.getValue();
+        if (subscriptions.length) {
+            for (const { subscribers, symbolId } of subscriptions) {
+                this.subscribeSpotEvents({
+                    symbolId,
+                });
+
+                for (const { period } of subscribers) {
+                    this.logger.debug(
+                        `Restoring ${symbolId}:${period} subscription`,
+                    );
+                    this.subscribeLiveTrendBarsInternal({
+                        period,
+                        symbolId,
+                    });
+                }
+            }
+        }
+
         this.connection.on(ProtoOASpotEvent.name, (event) => {
             if (this.isTrackedSubscribeLiveTrendBarsDescriptor(event)) {
-                const { subscribers, idx } =
-                    this.getSubscribeLiveTrendBarsSubscriptions(
-                        +event.descriptor.symbolId,
-                    );
+                const { subscribers, idx } = this.getLiveTrendBarsSubscriptions(
+                    +event.descriptor.symbolId,
+                );
                 if (idx === null) return;
 
                 subscribers.subscribers.forEach(
@@ -126,6 +143,8 @@ export class SymbolsUpdatesManager extends BaseManager {
                     subscribers,
                     idx,
                 );
+            } else {
+                this.logger.warn(`Unhandled event received`);
             }
         });
     }
@@ -136,7 +155,7 @@ export class SymbolsUpdatesManager extends BaseManager {
             opts.period,
         );
 
-        const symbolSubscriptions = this.getSubscribeLiveTrendBarsSubscriptions(
+        const symbolSubscriptions = this.getLiveTrendBarsSubscriptions(
             +opts.symbolId,
         );
         if (!symbolSubscriptions.subscribers.subscribers.length) {
@@ -220,6 +239,7 @@ export class SymbolsUpdatesManager extends BaseManager {
         // If no trendbar for our period, skip this event
         // (shouldn't happen based on your logs, but safety check)
         if (!trendbar) {
+            this.logger.warn('No trendbar');
             return null;
         }
 
@@ -289,7 +309,7 @@ export class SymbolsUpdatesManager extends BaseManager {
         );
     }
 
-    private getSubscribeLiveTrendBarsSubscriptions(symbolId: number) {
+    private getLiveTrendBarsSubscriptions(symbolId: number) {
         const idx = this.liveBarsSubsSymbolsToSubscribersMap.get(symbolId);
         if (idx === undefined) {
             this.logger.warn(
@@ -306,7 +326,8 @@ export class SymbolsUpdatesManager extends BaseManager {
         }
 
         return {
-            subscribers: this.liveBarsSubscriptions$.getValue()[idx!],
+            subscribers:
+                SubscriptionsManager.liveBarsSubscriptions$.getValue()[idx!],
             idx,
         };
     }
@@ -320,7 +341,9 @@ export class SymbolsUpdatesManager extends BaseManager {
         if (subscriptionIdx === undefined) return;
 
         const symbolSubscriptions =
-            this.liveBarsSubscriptions$.getValue()[subscriptionIdx];
+            SubscriptionsManager.liveBarsSubscriptions$.getValue()[
+                subscriptionIdx
+            ];
         symbolSubscriptions.subscribers =
             symbolSubscriptions.subscribers.filter((s) => {
                 if (period === '*' || s.period === period) {
@@ -331,16 +354,18 @@ export class SymbolsUpdatesManager extends BaseManager {
                 return true;
             });
 
-        const allSubscriptions = this.liveBarsSubscriptions$.getValue();
+        const allSubscriptions =
+            SubscriptionsManager.liveBarsSubscriptions$.getValue();
         allSubscriptions[subscriptionIdx] = symbolSubscriptions;
-        this.liveBarsSubscriptions$.next([...allSubscriptions]);
+        SubscriptionsManager.liveBarsSubscriptions$.next([...allSubscriptions]);
     }
 
     private addSubscribeLiveTrendBarsSubscription(
         symbolId: number,
         subscriber: ILiveBarsSubscriber,
     ) {
-        const allSubscriptions = this.liveBarsSubscriptions$.getValue();
+        const allSubscriptions =
+            SubscriptionsManager.liveBarsSubscriptions$.getValue();
         const existingSubscriptionIdx =
             this.liveBarsSubsSymbolsToSubscribersMap.get(symbolId);
         if (existingSubscriptionIdx === undefined) {
@@ -371,16 +396,17 @@ export class SymbolsUpdatesManager extends BaseManager {
             }
         }
 
-        this.liveBarsSubscriptions$.next([...allSubscriptions]);
+        SubscriptionsManager.liveBarsSubscriptions$.next([...allSubscriptions]);
     }
 
     private updateSubscribeLiveTrendBarsSubscriptions(
         subscribers: ILiveBarsSubscribers,
         idx: number,
     ) {
-        const allSubscriptions = this.liveBarsSubscriptions$.getValue();
+        const allSubscriptions =
+            SubscriptionsManager.liveBarsSubscriptions$.getValue();
         allSubscriptions[idx] = subscribers;
-        this.liveBarsSubscriptions$.next([...allSubscriptions]);
+        SubscriptionsManager.liveBarsSubscriptions$.next([...allSubscriptions]);
     }
 
     private async subscribeSpotEvents(opts: ProtoOASubscribeSpotsReq) {
