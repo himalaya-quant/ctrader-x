@@ -1,3 +1,7 @@
+# 0.0.15
+
+- Remove debug log
+
 # 0.0.14
 
 - Re subscribing live updates on reconnection, preserving original subscriptions

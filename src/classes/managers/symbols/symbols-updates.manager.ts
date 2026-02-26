@@ -239,7 +239,6 @@ export class SymbolsUpdatesManager extends BaseManager {
         // If no trendbar for our period, skip this event
         // (shouldn't happen based on your logs, but safety check)
         if (!trendbar) {
-            this.logger.warn('No trendbar');
             return null;
         }
 
