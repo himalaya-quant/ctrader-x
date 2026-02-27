@@ -2,7 +2,7 @@ import { CTraderConnection } from '@reiryoku/ctrader-layer';
 import { ILogger } from '../../logger';
 import { BaseManager } from '../models/base.manager';
 import { ICredentials } from '../models/credentials.model';
-import { ProtoOASubscribeLiveTrendbarReq } from '../../../models/proto/messages/symbols/ProtoOASubscribeLiveTrendbarReq';
+import { ProtoOASubscribeLiveTrendbarReq } from './proto/messages/ProtoOASubscribeLiveTrendbarReq';
 import {
     tap,
     from,
@@ -15,14 +15,14 @@ import {
 import { ProtoOASubscribeSpotsReq } from '../../../models/proto/messages/common/ProtoOASubscribeSpotsReq';
 import { ProtoOASubscribeSpotsRes } from '../../../models/proto/messages/common/ProtoOASubscribeSpotsRes';
 import { SubscribeSpotEventsError } from './errors/subscribe-spot-events.error';
-import { ProtoOASubscribeLiveTrendbarRes } from '../../../models/proto/messages/symbols/ProtoOASubscribeLiveTrendbarRes';
+import { ProtoOASubscribeLiveTrendbarRes } from './proto/messages/ProtoOASubscribeLiveTrendbarRes';
 import { SubscribeLiveTrendBarsInternalError } from './errors/subscribe-live-trend-bars.error';
 import { ProtoOASpotEvent } from '../../../models/proto/models/ProtoOASpotEvent';
 import { CTraderLayerEvent } from '@reiryoku/ctrader-layer/build/src/core/events/CTraderLayerEvent';
 import { OHLCV, OHLCVPositions } from '../../../models/common/ohlcv';
 import { Price } from '../../../utils/price.utils';
 import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';
-import { ProtoOAUnsubscribeLiveTrendbarReq } from '../../../models/proto/messages/symbols/ProtoOAUnsubscribeLiveTrendbarReq';
+import { ProtoOAUnsubscribeLiveTrendbarReq } from './proto/messages/ProtoOAUnsubscribeLiveTrendbarReq';
 import { cTraderXError } from '../../models/ctrader-x-error.model';
 import { UnsubscribeLiveTrendBarsError } from './errors/unsubscribe-live-trend-bars.error';
 

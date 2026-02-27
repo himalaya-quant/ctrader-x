@@ -7,20 +7,20 @@ export interface ILogger {
     warn(message: string): void;
 }
 
-export class Logger implements ILogger{
+export class Logger implements ILogger {
     debug(message: string) {
         if (Config.DEBUG_LOGS) console.log(`🐛 ${message}`);
     }
 
     log(message: string) {
-        console.log(`ℹ️ ${message}`);
+        console.log(`ℹ️  ${message}`);
     }
 
     error(message: string) {
-        console.log(`❌ ${message}`);
+        console.log(`❌  ${message}`);
     }
 
     warn(message: string) {
-        console.log(`⚠️ ${message}`);
+        console.log(`⚠️  ${message}`);
     }
 }

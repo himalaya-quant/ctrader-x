@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ProtoOASymbolsListReq } from '../../../models/proto/messages/symbols/ProtoOASymbolsListReq';
-import { ProtoOASymbolsListRes } from '../../../models/proto/messages/symbols/ProtoOASymbolsListRes';
-import { ProtoOASymbolByIdReq } from '../../../models/proto/messages/symbols/ProtoOASymbolByIdReq';
-import { ProtoOASymbolByIdRes } from '../../../models/proto/messages/symbols/ProtoOASymbolByIdRes';
-import { ProtoOAGetTrendbarsReq } from '../../../models/proto/messages/symbols/ProtoOAGetTrendbarsReq';
-import { ProtoOAGetTrendbarsRes } from '../../../models/proto/messages/symbols/ProtoOAGetTrendbarsRes';
+import { ProtoOASymbolsListReq } from './proto/messages/ProtoOASymbolsListReq';
+import { ProtoOASymbolsListRes } from './proto/messages/ProtoOASymbolsListRes';
+import { ProtoOASymbolByIdReq } from './proto/messages/ProtoOASymbolByIdReq';
+import { ProtoOASymbolByIdRes } from './proto/messages/ProtoOASymbolByIdRes';
+import { ProtoOAGetTrendbarsReq } from './proto/messages/ProtoOAGetTrendbarsReq';
+import { ProtoOAGetTrendbarsRes } from './proto/messages/ProtoOAGetTrendbarsRes';
 import { GetSymbolsListError } from './errors/get-symbols-list.error';
 import { GetSymbolsDetailsError } from './errors/get-symbols-details.error';
 import { GetTrendBarsError } from './errors/get-trend-bars.error';

@@ -9,6 +9,7 @@ import { SymbolsManager } from './managers/symbols/symbols.manager';
 import { ClientNotConnectedError } from './errors/client-not-connected.error';
 import { SymbolsUpdatesManager } from './managers/symbols/symbols-updates.manager';
 import { ICredentials } from './managers/models/credentials.model';
+import { PositionsManager } from './managers/positions/positions.manager';
 
 export class cTraderX {
     private readonly port = 5035;
@@ -19,6 +20,7 @@ export class cTraderX {
     private connection: CTraderConnection;
 
     private symbolsManager: SymbolsManager;
+    private positionsManager: PositionsManager;
     private authManager: AuthenticationManager;
     private symbolsUpdatesManager: SymbolsUpdatesManager;
 
@@ -41,6 +43,11 @@ export class cTraderX {
         };
 
         this.createConnection();
+    }
+
+    get positions() {
+        this.ensureConnectedOrThrow();
+        return this.positionsManager;
     }
 
     get symbols() {
@@ -112,6 +119,11 @@ export class cTraderX {
     }
 
     private async initializeSecondaryManagers() {
+        this.positionsManager = new PositionsManager(
+            this.credentials,
+            this.connection,
+            this.logger,
+        );
         this.symbolsManager = new SymbolsManager(
             this.credentials,
             this.connection,

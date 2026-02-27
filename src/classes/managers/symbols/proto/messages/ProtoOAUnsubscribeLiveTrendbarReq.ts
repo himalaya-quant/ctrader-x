@@ -1,5 +1,5 @@
-import { BaseProto } from '../../base-proto';
-import { ProtoOATrendbarPeriod } from '../../models/ProtoOATrendbarPeriod';
+import { BaseProto } from '../../../../../models/proto/base-proto';
+import { ProtoOATrendbarPeriod } from '../../../../../models/proto/models/ProtoOATrendbarPeriod';
 
 export class ProtoOAUnsubscribeLiveTrendbarReq extends BaseProto {
     /**

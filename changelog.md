@@ -1,3 +1,10 @@
+# 0.0.17
+
+Introduces PositionsManager responsible for:
+
+- orders creation
+- positions closing
+
 # 0.0.16
 
 - Fixed check on subscription by expecting a non NaN value set.

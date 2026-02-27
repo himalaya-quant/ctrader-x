@@ -5,8 +5,8 @@ import { BaseManager } from '../models/base.manager';
 import { ICredentials } from '../models/credentials.model';
 import { UserAuthenticationError } from './errors/user-auth.error';
 import { ApplicationAuthenticationError } from './errors/application-auth.error';
-import { ProtoOAAccountAuthReq } from '../../../models/proto/messages/authentication/ProtoOAAccountAuthReq';
-import { ProtoOAApplicationAuthReq } from '../../../models/proto/messages/authentication/ProtoOAApplicationAuthReq';
+import { ProtoOAAccountAuthReq } from './proto/messages/ProtoOAAccountAuthReq';
+import { ProtoOAApplicationAuthReq } from './proto/messages/ProtoOAApplicationAuthReq';
 
 export class AuthenticationManager extends BaseManager {
     constructor(
