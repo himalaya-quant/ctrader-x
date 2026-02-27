@@ -303,8 +303,10 @@ export class SymbolsUpdatesManager extends BaseManager {
     private isTrackedSubscribeLiveTrendBarsDescriptor(
         event: CTraderLayerEvent,
     ) {
-        return this.liveBarsSubsSymbolsToSubscribersMap.has(
-            +event.descriptor.symbolId,
+        return !isNaN(
+            +this.liveBarsSubsSymbolsToSubscribersMap.has(
+                +event.descriptor.symbolId,
+            ),
         );
     }
 

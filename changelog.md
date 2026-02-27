@@ -1,3 +1,7 @@
+# 0.0.16
+
+- Fixed check on subscription by expecting a non NaN value set.
+
 # 0.0.15
 
 - Remove debug log
