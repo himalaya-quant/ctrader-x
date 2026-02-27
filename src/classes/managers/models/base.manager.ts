@@ -1,6 +1,6 @@
 import { cTraderXError } from '../../models/ctrader-x-error.model';
 import { ILogger } from '../../logger';
-import { CTraderConnection } from '@reiryoku/ctrader-layer';
+import { CTraderConnection } from '@himalaya-quant/ctrader-layer';
 import { ICredentials } from './credentials.model';
 import { ProtoOAErrorRes } from '../../../models/proto/models/ProtoOAErrorRes';
 

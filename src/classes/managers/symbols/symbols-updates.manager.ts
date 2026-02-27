@@ -1,4 +1,4 @@
-import { CTraderConnection } from '@reiryoku/ctrader-layer';
+import { CTraderConnection } from '@himalaya-quant/ctrader-layer';
 import { ILogger } from '../../logger';
 import { BaseManager } from '../models/base.manager';
 import { ICredentials } from '../models/credentials.model';
@@ -18,7 +18,7 @@ import { SubscribeSpotEventsError } from './errors/subscribe-spot-events.error';
 import { ProtoOASubscribeLiveTrendbarRes } from './proto/messages/ProtoOASubscribeLiveTrendbarRes';
 import { SubscribeLiveTrendBarsInternalError } from './errors/subscribe-live-trend-bars.error';
 import { ProtoOASpotEvent } from '../../../models/proto/models/ProtoOASpotEvent';
-import { CTraderLayerEvent } from '@reiryoku/ctrader-layer/build/src/core/events/CTraderLayerEvent';
+import { CTraderLayerEvent } from '@himalaya-quant/ctrader-layer/build/src/core/events/CTraderLayerEvent';
 import { OHLCV, OHLCVPositions } from '../../../models/common/ohlcv';
 import { Price } from '../../../utils/price.utils';
 import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';

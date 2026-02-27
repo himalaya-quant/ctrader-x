@@ -1,6 +1,5 @@
 import { Subject } from 'rxjs';
-import { CTraderConnection } from '@reiryoku/ctrader-layer';
-import { CTraderLayerEvent } from '@reiryoku/ctrader-layer/build/src/core/events/CTraderLayerEvent';
+import { CTraderConnection } from '@himalaya-quant/ctrader-layer';
 
 import { ILogger } from '../../logger';
 import { BaseManager } from '../models/base.manager';
@@ -25,10 +24,20 @@ import {
     isCancelledOrder,
 } from './typeguards/positions-typeguards';
 
-import { ProtoOAOrder } from './proto/models/ProtoOAOrder';
 import { ProtoOANewOrderReq } from './proto/messages/ProtoOANewOrderReq';
 import { ProtoOAExecutionEvent } from './proto/events/ProtoOAExecutionEvent';
 import { ProtoOAOrderErrorEvent } from './proto/events/ProtoOAOrderErrorEvent';
+import { ProtoOAGetPositionUnrealizedPnLReq } from './proto/messages/ProtoOAGetPositionUnrealizedPnLReq';
+import { ProtoOAGetPositionUnrealizedPnLRes } from './proto/messages/ProtoOAGetPositionUnrealizedPnLRes';
+import { GetPositionUnrealizedPnLError } from './errors/get-position-unrealized-pnl.error';
+import { ProtoOAPayloadType } from '../../../models/proto/payload-types/payload-types.enum';
+import { CTraderLayerEvent } from '@himalaya-quant/ctrader-layer/build/src/core/events/CTraderLayerEvent';
+import { ProtoOAClosePositionReq } from '../symbols/proto/messages/ProtoOAClosePositionReq';
+import { ClosePositionError } from './errors/close-position.error';
+import { ProtoOAReconcileReq } from './proto/messages/ProtoOAReconcileReq';
+import { ProtoOAReconcileRes } from './proto/messages/ProtoOAReconcileRes';
+
+type BaseProto = 'payloadType' | 'ctidTraderAccountId';
 
 class OrdersEventsDispatcher {
     private static readonly ordersUpdates$ = new Subject<
@@ -44,7 +53,7 @@ class OrdersEventsDispatcher {
     }
 }
 
-export class PositionsManager extends BaseManager {
+export class OrdersManager extends BaseManager {
     constructor(
         protected readonly credentials: ICredentials,
         protected readonly connection: CTraderConnection,
@@ -58,8 +67,8 @@ export class PositionsManager extends BaseManager {
         return OrdersEventsDispatcher.subscribeEvents();
     }
 
-    async openOrder(req: ProtoOANewOrderReq) {
-        this.logCallAttempt(this.openOrder);
+    async newOrder(req: Omit<ProtoOANewOrderReq, BaseProto>) {
+        this.logCallAttempt(this.newOrder);
         const payload: ProtoOANewOrderReq = {
             ...req,
             ctidTraderAccountId: this.credentials.ctidTraderAccountId,
@@ -70,19 +79,97 @@ export class PositionsManager extends BaseManager {
         } catch (e) {
             throw this.handleCTraderCallError(
                 e,
-                this.openOrder,
+                this.newOrder,
                 new OpenOrderError(e),
             );
         }
 
-        this.logCallAttemptSuccess(this.openOrder);
+        this.logCallAttemptSuccess(this.newOrder);
     }
 
-    close() {}
+    async closePosition(req: Omit<ProtoOAClosePositionReq, BaseProto>) {
+        this.logCallAttempt(this.closePosition);
 
-    getPositions() {}
+        const payload: ProtoOAClosePositionReq = {
+            ...req,
+            ctidTraderAccountId: this.credentials.ctidTraderAccountId,
+        };
 
-    getUnrealizedPnL() {}
+        try {
+            await this.connection.sendCommand(
+                ProtoOAClosePositionReq.name,
+                payload,
+            );
+        } catch (e) {
+            throw this.handleCTraderCallError(
+                e,
+                this.closePosition,
+                new ClosePositionError(e),
+            );
+        }
+
+        this.logCallAttemptSuccess(this.closePosition);
+    }
+
+    /**
+     * Request for getting Trader's current open positions and pending orders data.
+     */
+    async getOpenPositions(
+        req?: Omit<ProtoOAReconcileReq, BaseProto>,
+    ): Promise<Omit<ProtoOAReconcileRes, 'payloadType'>> {
+        this.logCallAttempt(this.getOpenPositions);
+
+        const payload: ProtoOAReconcileReq = {
+            ...req,
+            ctidTraderAccountId: this.credentials.ctidTraderAccountId,
+        };
+
+        let result: ProtoOAReconcileRes;
+        try {
+            result = (await this.connection.sendCommand(
+                ProtoOAReconcileReq.name,
+                payload,
+            )) as ProtoOAReconcileRes;
+        } catch (e) {
+            throw this.handleCTraderCallError(
+                e,
+                this.getOpenPositions,
+                new ClosePositionError(e),
+            );
+        }
+
+        this.logCallAttemptSuccess(this.getOpenPositions);
+        return {
+            order: result.order,
+            position: result.position,
+            ctidTraderAccountId: result.ctidTraderAccountId,
+        };
+    }
+
+    async getPositionUnrealizedPnL() {
+        this.logCallAttempt(this.getPositionUnrealizedPnL);
+
+        const payload: ProtoOAGetPositionUnrealizedPnLReq = {
+            ctidTraderAccountId: this.credentials.ctidTraderAccountId,
+        };
+
+        let result: ProtoOAGetPositionUnrealizedPnLRes;
+        try {
+            result = (await this.connection.sendCommand(
+                ProtoOAGetPositionUnrealizedPnLReq.name,
+                payload,
+            )) as ProtoOAGetPositionUnrealizedPnLRes;
+        } catch (e) {
+            throw this.handleCTraderCallError(
+                e,
+                this.getPositionUnrealizedPnL,
+                new GetPositionUnrealizedPnLError(e),
+            );
+        }
+
+        this.logCallAttemptSuccess(this.getPositionUnrealizedPnL);
+        return result;
+    }
 
     private openExecutionListeners() {
         this.connection.on(

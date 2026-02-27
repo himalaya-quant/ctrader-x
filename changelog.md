@@ -1,9 +1,15 @@
 # 0.0.17
 
+Swaps @reiryoku/c-trader layer with forked and updated HimalayaQuant version:
+
+- updates protobuf messages to last published ones
+
 Introduces PositionsManager responsible for:
 
 - orders creation
 - positions closing
+- get open positions and pending orders
+- orders events streaming (including errors)
 
 # 0.0.16
 

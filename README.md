@@ -17,6 +17,11 @@ behind an intuitive and easy to use interface.
 - Symbols information fetching
 - Symbols historical bars fetching
 - Symbol live bars updates subscription
+- Create orders
+- Close positions
+- Get unrealized PnL
+- Get open positions
+- Subscribe orders events
 
 # Getting started
 
@@ -35,7 +40,6 @@ const client = new cTraderX({
     // by default cTraderX tries to read the credentials from env
     // see Authentication section for more information.
     // optional configuration options:
-
     // live?: boolean;
     // clientId?: string;
     // clientSecret?: string;
@@ -59,9 +63,12 @@ For more examples, see the `src/examples` folder where you can find examples abo
 - get symbols list & info
 - get symbol bars
 - subscribe to live bars
+- get position unrealized pnl
+- new order
+- close position
+- subscribe orders events
 
 And other examples that might come in the future.
-
 
 # Authentication
 
@@ -91,6 +98,13 @@ CTRADERX_DEBUG_LOGS
 
 Or you can provide your own logger implementation by implementing the `ILogger`
 interface, and providing it during `cTraderX` client instantiation.
+
+# Want more?
+
+This is a library that I developed because I didn't find anything that was actively
+maintained or easy to use on npm. Therefore, if you don't find a feature that the
+cTrader open API offers, but this library doesn't, open an issue on GitHub, or
+file a PR. I'll be more than happy to add the feature.
 
 <br/>
 <br/>

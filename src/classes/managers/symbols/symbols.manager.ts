@@ -1,4 +1,4 @@
-import { CTraderConnection } from '@reiryoku/ctrader-layer';
+import { CTraderConnection } from '@himalaya-quant/ctrader-layer';
 import { ILogger } from '../../logger';
 import { BaseManager } from '../models/base.manager';
 import { ProtoOASymbolsListReq } from './proto/messages/ProtoOASymbolsListReq';

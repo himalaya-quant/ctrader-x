@@ -1,16 +1,18 @@
 import { tap } from 'rxjs';
-import { cTraderX } from '../classes/client';
-import { ProtoOAOrderType } from '../classes/managers/positions/proto/enums/ProtoOAOrderType';
-import { ProtoOATradeSide } from '../classes/managers/positions/proto/enums/ProtoOATradeSide';
-import { LotsUtil } from '../classes/managers/positions/utils/lots.util';
 
-// New order example
+import { cTraderX } from '../classes/client';
+import { LotsUtil } from '../classes/managers/orders/utils/lots.util';
+
+import { ProtoOAOrderType } from '../classes/managers/orders/proto/enums/ProtoOAOrderType';
+import { ProtoOATradeSide } from '../classes/managers/orders/proto/enums/ProtoOATradeSide';
+
+// Subscribe orders events
 (async () => {
     const client = new cTraderX();
 
     await client.connect();
 
-    client.positions
+    client.orders
         .subscribeOrdersEvents()
         .pipe(
             tap((event) => {
@@ -21,7 +23,7 @@ import { LotsUtil } from '../classes/managers/positions/utils/lots.util';
         )
         .subscribe();
 
-    await client.positions.openOrder({
+    await client.orders.newOrder({
         symbolId: 1,
         clientOrderId: 'my-cool-order',
         tradeSide: ProtoOATradeSide.BUY,

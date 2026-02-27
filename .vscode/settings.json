@@ -1,4 +1,11 @@
 {
     "typescript.preferences.importModuleSpecifier": "relative",
-    "cSpell.words": ["CTRADERX", "SPOTWARE", "Trendbar", "Trendbars"]
+    "cSpell.words": [
+        "BTCUSD",
+        "CTRADERX",
+        "EURUSD",
+        "SPOTWARE",
+        "Trendbar",
+        "Trendbars"
+    ]
 }

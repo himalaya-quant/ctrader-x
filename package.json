@@ -18,7 +18,7 @@
         "url": "git+https://github.com/himalaya-quant/ctrader-x.git"
     },
     "dependencies": {
-        "@reiryoku/ctrader-layer": "^2.2.0",
+        "@himalaya-quant/ctrader-layer": "^2.2.1",
         "dotenv": "^17.2.4",
         "protobufjs": "^7.4.0",
         "rxjs": "^7.8.2"

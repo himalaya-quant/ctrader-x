@@ -1,6 +1,6 @@
 // tests/managers/authentication.manager.test.ts
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { CTraderConnection } from '@reiryoku/ctrader-layer';
+import { CTraderConnection } from '@himalaya-quant/ctrader-layer';
 import { Config } from '../../../config/config';
 import { ApplicationAuthenticationError } from './errors/application-auth.error';
 import { UserAuthenticationError } from './errors/user-auth.error';

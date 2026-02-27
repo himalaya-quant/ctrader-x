@@ -1,14 +1,14 @@
 import { cTraderX } from '../classes/client';
-import { ProtoOAOrderType } from '../classes/managers/positions/proto/enums/ProtoOAOrderType';
-import { ProtoOATradeSide } from '../classes/managers/positions/proto/enums/ProtoOATradeSide';
-import { LotsUtil } from '../classes/managers/positions/utils/lots.util';
+import { ProtoOAOrderType } from '../classes/managers/orders/proto/enums/ProtoOAOrderType';
+import { ProtoOATradeSide } from '../classes/managers/orders/proto/enums/ProtoOATradeSide';
+import { LotsUtil } from '../classes/managers/orders/utils/lots.util';
 
 // New order example
 (async () => {
     const client = new cTraderX();
 
     await client.connect();
-    await client.positions.openOrder({
+    await client.orders.newOrder({
         orderType: ProtoOAOrderType.MARKET,
         symbolId: 1,
         tradeSide: ProtoOATradeSide.BUY,

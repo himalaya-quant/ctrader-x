@@ -1,4 +1,4 @@
-import { CTraderConnection } from '@reiryoku/ctrader-layer';
+import { CTraderConnection } from '@himalaya-quant/ctrader-layer';
 import { ILogger, Logger } from './logger';
 import { AuthenticationManager } from './managers/authentication/authentication.manager';
 import { Config } from '../config/config';
@@ -9,7 +9,7 @@ import { SymbolsManager } from './managers/symbols/symbols.manager';
 import { ClientNotConnectedError } from './errors/client-not-connected.error';
 import { SymbolsUpdatesManager } from './managers/symbols/symbols-updates.manager';
 import { ICredentials } from './managers/models/credentials.model';
-import { PositionsManager } from './managers/positions/positions.manager';
+import { OrdersManager } from './managers/orders/orders.manager';
 
 export class cTraderX {
     private readonly port = 5035;
@@ -19,8 +19,8 @@ export class cTraderX {
     private readonly credentials: ICredentials;
     private connection: CTraderConnection;
 
+    private ordersManager: OrdersManager;
     private symbolsManager: SymbolsManager;
-    private positionsManager: PositionsManager;
     private authManager: AuthenticationManager;
     private symbolsUpdatesManager: SymbolsUpdatesManager;
 
@@ -45,9 +45,9 @@ export class cTraderX {
         this.createConnection();
     }
 
-    get positions() {
+    get orders() {
         this.ensureConnectedOrThrow();
-        return this.positionsManager;
+        return this.ordersManager;
     }
 
     get symbols() {
@@ -119,7 +119,7 @@ export class cTraderX {
     }
 
     private async initializeSecondaryManagers() {
-        this.positionsManager = new PositionsManager(
+        this.ordersManager = new OrdersManager(
             this.credentials,
             this.connection,
             this.logger,
