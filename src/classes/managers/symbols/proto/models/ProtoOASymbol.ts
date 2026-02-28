@@ -1,4 +1,4 @@
-import { BaseProto } from '../base-proto';
+import { BaseProto } from '../../../../../models/proto/base-proto';
 import { ProtoOAHoliday } from './ProtoOAHoliday';
 import { ProtoOAInterval } from './ProtoOAInterval';
 

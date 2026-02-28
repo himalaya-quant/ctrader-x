@@ -1,6 +1,6 @@
 import { BaseProto } from '../../../../../models/proto/base-proto';
-import { ProtoOAArchivedSymbol } from '../../../../../models/proto/models/ProtoOAArchivedSymbol';
-import { ProtoOASymbol } from '../../../../../models/proto/models/ProtoOASymbol';
+import { ProtoOAArchivedSymbol } from '../models/ProtoOAArchivedSymbol';
+import { ProtoOASymbol } from '../models/ProtoOASymbol';
 
 export class ProtoOASymbolByIdRes extends BaseProto {
     /**

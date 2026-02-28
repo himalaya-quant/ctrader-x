@@ -41,4 +41,13 @@ export interface IConfiguration {
      * Enables additional verbose logs details
      */
     debug?: boolean;
+
+    /**
+     * Choose wether to let the client detect abnormally long server inactivity
+     * periods, by tracking the server sent heartbeats, and reconnect automatically
+     * when too much time passed since the last received heartbeat.
+     *
+     * @default true
+     */
+    autoReconnect?: boolean;
 }

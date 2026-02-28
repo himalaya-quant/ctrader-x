@@ -1,5 +1,5 @@
 import { OHLCV } from '../models/common/ohlcv';
-import { ProtoOATrendbar } from '../models/proto/models/ProtoOATrendbar';
+import { ProtoOATrendbar } from '../classes/managers/symbols/proto/models/ProtoOATrendbar';
 
 export class TrendBarUtils {
     static getPriceFromRelative(digits: number, relative: number): number {

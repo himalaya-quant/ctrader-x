@@ -1,4 +1,4 @@
-import { BaseProto } from '../../base-proto';
+import { BaseProto } from '../../../../../models/proto/base-proto';
 
 export class ProtoOASubscribeSpotsReq extends BaseProto {
     symbolId: number;

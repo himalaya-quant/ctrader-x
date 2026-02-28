@@ -12,16 +12,16 @@ import {
     BehaviorSubject,
     of,
 } from 'rxjs';
-import { ProtoOASubscribeSpotsReq } from '../../../models/proto/messages/common/ProtoOASubscribeSpotsReq';
-import { ProtoOASubscribeSpotsRes } from '../../../models/proto/messages/common/ProtoOASubscribeSpotsRes';
+import { ProtoOASubscribeSpotsReq } from './proto/messages/ProtoOASubscribeSpotsReq';
+import { ProtoOASubscribeSpotsRes } from './proto/messages/ProtoOASubscribeSpotsRes';
 import { SubscribeSpotEventsError } from './errors/subscribe-spot-events.error';
 import { ProtoOASubscribeLiveTrendbarRes } from './proto/messages/ProtoOASubscribeLiveTrendbarRes';
 import { SubscribeLiveTrendBarsInternalError } from './errors/subscribe-live-trend-bars.error';
-import { ProtoOASpotEvent } from '../../../models/proto/models/ProtoOASpotEvent';
+import { ProtoOASpotEvent } from './proto/models/ProtoOASpotEvent';
 import { CTraderLayerEvent } from '@himalaya-quant/ctrader-layer/build/src/core/events/CTraderLayerEvent';
 import { OHLCV, OHLCVPositions } from '../../../models/common/ohlcv';
 import { Price } from '../../../utils/price.utils';
-import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';
+import { ProtoOATrendbarPeriod } from './proto/models/ProtoOATrendbarPeriod';
 import { ProtoOAUnsubscribeLiveTrendbarReq } from './proto/messages/ProtoOAUnsubscribeLiveTrendbarReq';
 import { cTraderXError } from '../../models/ctrader-x-error.model';
 import { UnsubscribeLiveTrendBarsError } from './errors/unsubscribe-live-trend-bars.error';

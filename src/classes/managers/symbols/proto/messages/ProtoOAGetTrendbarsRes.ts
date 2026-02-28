@@ -1,6 +1,6 @@
 import { BaseProto } from '../../../../../models/proto/base-proto';
-import { ProtoOATrendbar } from '../../../../../models/proto/models/ProtoOATrendbar';
-import { ProtoOATrendbarPeriod } from '../../../../../models/proto/models/ProtoOATrendbarPeriod';
+import { ProtoOATrendbar } from '../models/ProtoOATrendbar';
+import { ProtoOATrendbarPeriod } from '../models/ProtoOATrendbarPeriod';
 
 export class ProtoOAGetTrendbarsRes extends BaseProto {
     /**

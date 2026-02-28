@@ -1,5 +1,5 @@
 import { BaseProto } from '../../../../../models/proto/base-proto';
-import { ProtoOALightSymbol } from '../../../../../models/proto/models/ProtoOALightSymbol';
+import { ProtoOALightSymbol } from '../models/ProtoOALightSymbol';
 
 export class ProtoOASymbolsListRes extends BaseProto {
     /**

@@ -11,11 +11,11 @@ import { GetTrendBarsError } from './errors/get-trend-bars.error';
 import { ProtoOASymbolByIdRes } from './proto/messages/ProtoOASymbolByIdRes';
 import { ProtoOASymbolByIdReq } from './proto/messages/ProtoOASymbolByIdReq';
 import { GetSymbolsDetailsError } from './errors/get-symbols-details.error';
-import { ProtoOASymbol } from '../../../models/proto/models/ProtoOASymbol';
-import { ProtoOALightSymbol } from '../../../models/proto/models/ProtoOALightSymbol';
+import { ProtoOASymbol } from './proto/models/ProtoOASymbol';
+import { ProtoOALightSymbol } from './proto/models/ProtoOALightSymbol';
 import { TrendBarUtils } from '../../../utils/trendbar.utils';
 import { OHLCV } from '../../../models/common/ohlcv';
-import { ProtoOATrendbarPeriod } from '../../../models/proto/models/ProtoOATrendbarPeriod';
+import { ProtoOATrendbarPeriod } from './proto/models/ProtoOATrendbarPeriod';
 
 export interface IGetSymbolsListOptions {
     includeArchivedSymbols?: boolean;

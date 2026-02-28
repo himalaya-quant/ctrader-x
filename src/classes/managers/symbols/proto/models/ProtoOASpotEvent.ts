@@ -1,4 +1,4 @@
-import { BaseProto } from '../base-proto';
+import { BaseProto } from '../../../../../models/proto/base-proto';
 import { ProtoOATrendbar } from './ProtoOATrendbar';
 
 export class ProtoOASpotEvent extends BaseProto {

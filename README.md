@@ -1,4 +1,4 @@
-# cTraderX
+# HimalayaQuant cTraderX
 
 A typescript implementation of the cTrader API.
 Strongly typed and easy to use.
@@ -7,21 +7,31 @@ Strictly follows the documentation provided by Spotware for the messages and
 payloads definition. You can find the full specification at:
 [Spotware Messages specification](help.ctrader.com/open-api/messages)
 
-Under the hood the `cTraderX` uses ProtoBuffer messages for communicating with
+Under the hood cTraderX uses ProtoBuffer messages for communicating with
 the cTrader API. But to the end user the procedure is completely abstracted
 behind an intuitive and easy to use interface.
 
 # Features
 
-- Basic authentication (still does not support automatic flow)
+### Authentication
+
+- Basic authentication *(automatic token renewal flow coming soon)*
+
+### Symbols
+
 - Symbols information fetching
 - Symbols historical bars fetching
-- Symbol live bars updates subscription
+- Subscribe realtime symbol bars updates 
+
+### Orders & Positions
+
 - Create orders
 - Close positions
 - Get unrealized PnL
-- Get open positions
-- Subscribe orders events
+- Cancel pending orders
+- Modify pending orders
+- Get open positions and pending orders
+- Subscribe realtime orders events
 
 # Getting started
 
@@ -66,6 +76,7 @@ For more examples, see the `src/examples` folder where you can find examples abo
 - get position unrealized pnl
 - new order
 - close position
+- get open positions
 - subscribe orders events
 
 And other examples that might come in the future.

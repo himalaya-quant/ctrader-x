@@ -8,8 +8,13 @@ Introduces PositionsManager responsible for:
 
 - orders creation
 - positions closing
+- modify pending order
+- cancel pending order
 - get open positions and pending orders
 - orders events streaming (including errors)
+
+Introduces server inactivity monitoring system, auto reconnection, and possibility
+to opt out via configuration
 
 # 0.0.16
 

@@ -1,6 +1,6 @@
 import { tap } from 'rxjs';
 import { cTraderX } from '../classes/client';
-import { ProtoOATrendbarPeriod } from '../models/proto/models/ProtoOATrendbarPeriod';
+import { ProtoOATrendbarPeriod } from '../classes/managers/symbols/proto/models/ProtoOATrendbarPeriod';
 
 // Subscribe live bars
 (async () => {
