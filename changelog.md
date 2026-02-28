@@ -1,3 +1,7 @@
+# 0.0.18
+
+Adds deal to orders events
+
 # 0.0.17
 
 Swaps @reiryoku/c-trader layer with forked and updated HimalayaQuant version:

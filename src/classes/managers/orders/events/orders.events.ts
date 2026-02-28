@@ -1,4 +1,5 @@
 import { ProtoOAOrderErrorEvent } from '../proto/events/ProtoOAOrderErrorEvent';
+import { ProtoOADeal } from '../proto/models/ProtoOADeal';
 import { ProtoOAOrder } from '../proto/models/ProtoOAOrder';
 
 export class OrderErrorEvent {
@@ -6,7 +7,10 @@ export class OrderErrorEvent {
 }
 
 export class OrderEvent {
-    constructor(readonly order: ProtoOAOrder) {}
+    constructor(
+        readonly order: ProtoOAOrder,
+        deal?: ProtoOADeal,
+    ) {}
 }
 export class OrderAcceptedEvent extends OrderEvent {}
 export class OrderRejectedEvent extends OrderEvent {}

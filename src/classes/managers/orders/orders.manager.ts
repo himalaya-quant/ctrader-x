@@ -272,40 +272,46 @@ export class OrdersManager extends BaseManager {
     }
 
     private handleOrderExecutionEvent(event: CTraderLayerEvent): any {
-        const { order } = event.descriptor as ProtoOAExecutionEvent;
+        const { order, deal } = event.descriptor as ProtoOAExecutionEvent;
         if (isAcceptedOrder(order)) {
             this.logger.debug(
                 `Order ${order.clientOrderId || order.orderId} accepted`,
             );
-            OrdersEventsDispatcher.dispatch(new OrderAcceptedEvent(order));
+            OrdersEventsDispatcher.dispatch(
+                new OrderAcceptedEvent(order, deal),
+            );
         }
 
         if (isFilledOrder(order)) {
             this.logger.debug(
                 `Order ${order.clientOrderId || order.orderId} filled`,
             );
-            OrdersEventsDispatcher.dispatch(new OrderFilledEvent(order));
+            OrdersEventsDispatcher.dispatch(new OrderFilledEvent(order, deal));
         }
 
         if (isCancelledOrder(order)) {
             this.logger.debug(
                 `Order ${order.clientOrderId || order.orderId} cancelled`,
             );
-            OrdersEventsDispatcher.dispatch(new OrderCancelledEvent(order));
+            OrdersEventsDispatcher.dispatch(
+                new OrderCancelledEvent(order, deal),
+            );
         }
 
         if (isExpiredOrder(order)) {
             this.logger.debug(
                 `Order ${order.clientOrderId || order.orderId} expired`,
             );
-            OrdersEventsDispatcher.dispatch(new OrderExpiredEvent(order));
+            OrdersEventsDispatcher.dispatch(new OrderExpiredEvent(order, deal));
         }
 
         if (isRejectedOrder(order)) {
             this.logger.debug(
                 `Order ${order.clientOrderId || order.orderId} rejected`,
             );
-            OrdersEventsDispatcher.dispatch(new OrderRejectedEvent(order));
+            OrdersEventsDispatcher.dispatch(
+                new OrderRejectedEvent(order, deal),
+            );
         }
     }
 
