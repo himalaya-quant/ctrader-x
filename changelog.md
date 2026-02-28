@@ -1,3 +1,7 @@
+# 0.0.20
+
+Exposes lots utils
+
 # 0.0.19
 
 Exposes readonly deal on orders events
