@@ -1,3 +1,7 @@
+# 0.0.19
+
+Exposes readonly deal on orders events
+
 # 0.0.18
 
 Adds deal to orders events

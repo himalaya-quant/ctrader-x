@@ -9,7 +9,7 @@ export class OrderErrorEvent {
 export class OrderEvent {
     constructor(
         readonly order: ProtoOAOrder,
-        deal?: ProtoOADeal,
+        readonly deal?: ProtoOADeal,
     ) {}
 }
 export class OrderAcceptedEvent extends OrderEvent {}
